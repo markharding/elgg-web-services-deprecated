@@ -29,7 +29,6 @@ All the web services are divided in seven broad categories
 	* Wire
 	* Blog
 	* File
-	* Like
 	
 These web services can be enabled or disabled depending on requirement. Any web services can be disabled or enabled from
  "Web Services" in Admin settings.
@@ -89,9 +88,3 @@ Below are a list of all the methods that can be called.
 
  * file.get_files    Get file list by all users or a pecific user
  * file.get_files_by_friend Get file list by friends
- 
-### Likes
-
- * likes.add Like an entity
- * likes.delete Unlike an entity
- * likes.count Number of likes to an entity
