@@ -50,3 +50,21 @@ expose_function('site.getinfo',
 				'GET',
 				false,
 				false);
+/**
+ * Confirm if OAuth is installed for authentication
+ *
+ * @return true/false if OAuth is installed
+ */
+
+function site_checkOAuth() {
+	//run the OAuth search
+}
+
+expose_function('site.checkOAuth',
+				"site_checkOAuth",
+				array(),
+				"check if OAuth is enabled",
+				'GET',
+				false,
+				false);
+/**
