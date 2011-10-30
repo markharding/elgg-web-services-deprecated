@@ -37,12 +37,13 @@ These web services can be enabled or disabled depending on requirement. Any web 
 List of Web Services
 --------------------
 
+Below are a list of all the methods that can be called.
+
 ### Core
 
  * site.test - Heartbeat method to test whether web services are up
-
  * site.get_info - Get basic information about this Elgg site
-
+ * site.get_info - Find out if the elgg site is running the OAuth plugin
 
 ### User
 
