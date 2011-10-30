@@ -1,17 +1,7 @@
 Elgg Web Services
 =================
 
-Elgg is an award-winning social networking engine, delivering the building blocks that enable businesses, schools, 
-universities and associations to create their own fully-featured social networks and applications.
-The web services plugin can be installed to any Elgg server and it will enable the web services in that server.
-These web services can be used to provide access to data of that Elgg server and allows developers to build upon 
-and extend their applications in new and creative ways.
-
-Introduction
---------------------
-
-The Elgg web services are essentially RPC web services the output can be requested as JSON as well as XML. These 
-web services are based on Elgg's web services API.
+The Elgg web services are essentially RPC web services the output can be requested as JSON as well as XML. These web services are based on Elgg's web services API.
 
 ### Making a web services call
 
@@ -24,16 +14,10 @@ Here <site URL> : the path of root directory of Elgg website
 	 <outpput type> : json or xml
 	 <method name> : the name of the remote method you want to call
 	 
-Other parameters need to be passed by GET or POST depending on the type of web services is being requested. The request
-type for each web service has been defined later in this document
+Other parameters need to be passed by GET or POST depending on the type of web services is being requested. 
 
 Getting Started
 --------------------
-
-### Installation
-
-To use these web services in any Elgg installation, just install this plugin. After that generate a API key pair for all 
-the application which use them. This API key willbe needed to passed in every web service request as a variable 'api_key'.
 
 ### Configuration
 
