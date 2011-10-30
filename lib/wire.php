@@ -17,7 +17,7 @@
  *
  * @return bool
  */
-function wire_save_post($username, $text, $access = ACCESS_PUBLIC) {
+function wire_save_post($username, $text, $access = ACCESS_PUBLIC, $wireMethod = "api") {
 	$user = get_user_by_username($username);
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
@@ -28,7 +28,7 @@ function wire_save_post($username, $text, $access = ACCESS_PUBLIC) {
 		return $return;
 	}
 	$access_id = strip_tags($access);
-	$guid = thewire_save_post($text, $user->guid, $access_id, "api");
+	$guid = thewire_save_post($text, $user->guid, $access_id, $wireMethod);
 	if (!$guid) {
 		$return['message'] = elgg_echo("thewire:error");
 		return $return;
@@ -42,6 +42,7 @@ expose_function('wire.save_post',
 				array('username' => array ('type' => 'string'),
 						'text' => array ('type' => 'string'),
 						'access' => array ('type' => 'string', 'required' => false),
+						'wireMethod' => array ('type' => 'string', 'required' => false),
 					),
 				"Post a wire post",
 				'POST',
