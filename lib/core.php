@@ -32,6 +32,7 @@ expose_function('site.test',
  * @return string $url URL of Elgg website
  * @return string $sitename Name of Elgg website
  * @return string $language Language of Elgg website
+ * @return string $enabled_services List of enabled services
  */
 function site_getinfo() {
 	$site = elgg_get_config('site');
@@ -39,6 +40,8 @@ function site_getinfo() {
 	$siteinfo['url'] = elgg_get_site_url();
 	$siteinfo['sitename'] = $site->name;
 	$siteinfo['language'] = elgg_get_config('language');
+	$siteinfo['enabled_services'] = $enabled = unserialize(elgg_get_plugin_setting('enabled_webservices', 'web_services'));
+
 	
 	return $siteinfo;
 } 
