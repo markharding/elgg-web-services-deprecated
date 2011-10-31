@@ -12,7 +12,6 @@ echo elgg_view("input/checkboxes", array(
 			'options' => array(elgg_echo("web_services:user") => 'user', 
 								elgg_echo("web_services:blog") => 'blog', 
 								elgg_echo("web_services:wire") => 'wire', 
-								elgg_echo("web_services:core") => 'core', 
 								elgg_echo("web_services:group") => 'group',
 								elgg_echo("web_services:file") => 'file'),
 			));

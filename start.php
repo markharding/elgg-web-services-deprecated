@@ -24,6 +24,9 @@ foreach($enabled as $service) {
 	elgg_register_library('webservice:'.$service, elgg_get_plugins_path() . 'web_services/lib/'.$service.'.php');
 	elgg_load_library('webservice:'.$service);
 }
+//Core Library should be default
+elgg_register_library('webservice:core', elgg_get_plugins_path() . 'web_services/lib/core.php');
+elgg_load_library('webservice:core');
 
 /**
  * Unit test registration for web services
