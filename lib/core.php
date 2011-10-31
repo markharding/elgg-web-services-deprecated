@@ -64,7 +64,9 @@ function site_checkOAuth() {
 	if(is_plugin_enabled('oauth_api',0) == true){
 		return true;
 	}	else {
-		return "OAuth is not installed";
+		$response['success'] = false;
+		$response['message'] = "OAuth is not installed";
+		return $response;
 	}
 }
 
@@ -75,4 +77,3 @@ expose_function('site.checkOAuth',
 				'GET',
 				false,
 				false);
-/**
