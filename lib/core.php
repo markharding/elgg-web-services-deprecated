@@ -61,7 +61,7 @@ expose_function('site.getinfo',
 
 function site_checkOAuth() {
 	//run the OAuth search
-	if(is_plugin_enabled('oauth_api',0) == true){
+	if(is_plugin_enabled('oauth',0) == true){
 		return true;
 	}	else {
 		$response['success'] = false;
