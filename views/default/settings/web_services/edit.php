@@ -5,7 +5,7 @@
 
 
 echo '<div>';
-echo ' ';
+echo elgg_echo('web_services:settings_description');
 echo elgg_view("input/checkboxes", array(
 			'name' => 'params[enabled_webservices]',
 			'value' => unserialize(elgg_get_plugin_setting('enabled_webservices', 'web_services')),
@@ -17,7 +17,3 @@ echo elgg_view("input/checkboxes", array(
 			));
 
 echo '</div>';
-
-$enabled = unserialize(elgg_get_plugin_setting('enabled_webservices', 'web_services'));
-var_dump($enabled);
-

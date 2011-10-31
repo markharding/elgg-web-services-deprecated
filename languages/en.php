@@ -13,6 +13,7 @@ $english = array(
 	'web_services:core' => "Core", 
 	'web_services:group' => "Group",
 	'web_services:file' => "File",
+	'web_services:settings_description' => "Select the web services below that you wish to be enabled:",
 	'web_services:selectfeatures' => "Select the features to be enabled",
 	'friends:alreadyadded' => "%s is already added as friend",
 	'friends:remove:notfriend' => "%s is not your friend",
