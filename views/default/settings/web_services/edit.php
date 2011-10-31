@@ -19,4 +19,6 @@ echo elgg_view("input/checkboxes", array(
 
 echo '</div>';
 
+$enabled = unserialize(elgg_get_plugin_setting('enabled_webservices', 'web_services'));
+var_dump($enabled);
 

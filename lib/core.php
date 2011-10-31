@@ -60,7 +60,9 @@ function site_checkOAuth() {
 	//run the OAuth search
 	if(is_plugin_enabled('oauth_api',0) == true){
 		return true;
-	}	
+	}	else {
+		return "OAuth is not installed";
+	}
 }
 
 expose_function('site.checkOAuth',
