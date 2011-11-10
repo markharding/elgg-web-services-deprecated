@@ -41,7 +41,13 @@ function site_getinfo() {
 	$siteinfo['sitename'] = $site->name;
 	$siteinfo['language'] = elgg_get_config('language');
 	$siteinfo['enabled_services'] = $enabled = unserialize(elgg_get_plugin_setting('enabled_webservices', 'web_services'));
-
+	
+	//return OAuth info
+	if(is_plugin_enabled('oauth',0) == true){
+		$siteinfo['OAuth'] = "running";
+	} else {
+		$siteinfo['OAuth'] = "no";
+	}
 	
 	return $siteinfo;
 } 
