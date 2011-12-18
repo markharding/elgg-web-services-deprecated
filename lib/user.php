@@ -34,7 +34,7 @@ expose_function('user.get_profile_fields',
  *
  * @param string $username username to get profile information
  *
- * @return string $user_fields Array of profile information with labels as the keys
+ * @return string $profile_info Array containin 'core', 'profile_fields' and 'avatar_url'
  */
 function user_get_profile($username) {
 	$user = get_user_by_username($username);
@@ -46,17 +46,23 @@ function user_get_profile($username) {
 	foreach ($user_fields as $key => $type) {
 		$user_fields[$key] = $user->$key;
 	}
-	return $user_fields;
+	
+	$core['name'] = "Mark";
+	
+	$profile_info['core'] = $core;
+	$profile_info['profile_fields'] = $user_fields;
+	$profile_info['avatar_url'] = "test";
+	return $profile_info;
 }
 
 expose_function('user.get_profile',
 				"user_get_profile",
 				array('username' => array ('type' => 'string')
 					),
-				"Get user profile labels",
+				"Get user profile information",
 				'GET',
 				false,
-				false);
+				true);
 /**
  * Web service to update profile information
  *
