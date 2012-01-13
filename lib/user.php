@@ -37,7 +37,13 @@ expose_function('user.get_profile_fields',
  * @return string $profile_info Array containin 'core', 'profile_fields' and 'avatar_url'
  */
 function user_get_profile($username) {
-	$user = get_user_by_username($username);
+	//if $username is not provided then try and get the loggedin user
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
+	
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
@@ -47,7 +53,7 @@ function user_get_profile($username) {
 		$user_fields[$key] = $user->$key;
 	}
 	
-	$core['name'] = "Mark";
+	$core['name'] = $user->name;
 	
 	$profile_info['core'] = $core;
 	$profile_info['profile_fields'] = $user_fields;
@@ -57,12 +63,12 @@ function user_get_profile($username) {
 
 expose_function('user.get_profile',
 				"user_get_profile",
-				array('username' => array ('type' => 'string')
+				array('username' => array ('type' => 'string', 'required' => false)
 					),
 				"Get user profile information",
 				'GET',
-				false,
-				true);
+				true,
+				false);
 /**
  * Web service to update profile information
  *
