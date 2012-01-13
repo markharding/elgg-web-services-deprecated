@@ -57,7 +57,7 @@ function user_get_profile($username) {
 	
 	$profile_info['core'] = $core;
 	$profile_info['profile_fields'] = $user_fields;
-	$profile_info['avatar_url'] = "test";
+	$profile_info['avatar_url'] = get_entity_icon_url($user,'medium');
 	return $profile_info;
 }
 
