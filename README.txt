@@ -20,15 +20,6 @@ Getting Started
 --------------------
 
 ### Configuration
-
-All the web services are divided in seven broad categories
-
-	* Core
-	* User
-	* Group
-	* Wire
-	* Blog
-	* File
 	
 These web services can be enabled or disabled depending on requirement. Any web services can be disabled or enabled from
  "Web Services" in Admin settings.
@@ -43,6 +34,7 @@ Below are a list of all the methods that can be called.
  * site.test - Heartbeat method to test whether web services are up
  * site.get_info - Get basic information about this Elgg site
  * site.get_info - Find out if the elgg site is running the OAuth plugin
+ * site.river_feed		    Get river feed
 
 ### User
 

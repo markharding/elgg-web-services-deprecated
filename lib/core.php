@@ -60,6 +60,26 @@ expose_function('site.getinfo',
 				false,
 				false);
 /**
+ * Retrive river feed
+ *
+ * @return array $river_feed contains all information for river
+ */			
+function site_river_feed($limit){
+	global $jsonexport;
+	//elgg_view_river_items();
+	//var_dump($jsonexport);
+	return $jsonexport['activity'];
+	
+}
+expose_function('site.river_feed',
+				"site_river_feed",
+				array('limit' => array('type' => 'int')),
+				"Get river feed",
+				'GET',
+				false,
+				true);
+				
+/**
  * Confirm if OAuth is installed for authentication
  *
  * @return true/false if OAuth is installed
