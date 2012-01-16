@@ -49,14 +49,22 @@ function user_get_profile($username) {
 	}
 	
 	$user_fields = elgg_get_config('profile_fields');
+	
 	foreach ($user_fields as $key => $type) {
-		$user_fields[$key] = $user->$key;
+			
+		if($user->$key){
+			$field = new stdClass();
+			$field->name = $key ;
+			$field->value =  $user->$key;	
+			$profile_fields[] = $field;
+		}
+		
 	}
 	
 	$core['name'] = $user->name;
 	
 	$profile_info['core'] = $core;
-	$profile_info['profile_fields'] = $user_fields;
+	$profile_info['profile_fields'] = $profile_fields;
 	$profile_info['avatar_url'] = get_entity_icon_url($user,'medium');
 	return $profile_info;
 }
@@ -67,7 +75,7 @@ expose_function('user.get_profile',
 					),
 				"Get user profile information",
 				'GET',
-				true,
+				false,
 				false);
 /**
  * Web service to update profile information
