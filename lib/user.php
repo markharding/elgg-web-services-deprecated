@@ -361,7 +361,11 @@ expose_function('user.friend.remove',
  * @return array
  */           
 function user_get_friends($username, $limit = 10, $offset = 0) {
-	$user = get_user_by_username($username);
+	if($username){
+		$user = get_user_by_username($username);
+	} else {
+		$user = get_loggedin_user();
+	}
 	if (!$user) {
 		throw new InvalidParameterException(elgg_echo('registration:usernamenotvalid'));
 	}
@@ -382,7 +386,7 @@ function user_get_friends($username, $limit = 10, $offset = 0) {
 
 expose_function('user.friend.get_friends',
 				"user_get_friends",
-				array('username' => array ('type' => 'string', 'required' => true),
+				array('username' => array ('type' => 'string', 'required' => false),
 						'limit' => array ('type' => 'int', 'required' => false),
 						'offset' => array ('type' => 'int', 'required' => false),
 					),
