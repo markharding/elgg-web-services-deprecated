@@ -375,6 +375,7 @@ function user_get_friends($username, $limit = 10, $offset = 0) {
 	foreach($friends as $friend) {
 		$return[$friend->guid]['username'] = $friend->username;
 		$return[$friend->guid]['name'] = $friend->name;
+		$return[$friend->guid]['avatar_url'] = get_entity_icon_url($friend,'small');
 		$success = true;
 	}
 	
