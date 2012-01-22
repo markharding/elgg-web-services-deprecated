@@ -55,7 +55,7 @@ function user_get_profile($username) {
 		if($user->$key){
 			$field = new stdClass();
 			$field->name = elgg_echo('profile:'.$key) ;
-			$field->value =  $user->$key;	
+			$field->value = strip_tags($user->$key);
 			$profile_fields[] = $field;
 		}
 		
