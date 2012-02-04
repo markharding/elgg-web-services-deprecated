@@ -51,15 +51,13 @@ function user_get_profile($username) {
 	$user_fields = elgg_get_config('profile_fields');
 	
 	foreach ($user_fields as $key => $type) {
-			
 		if($user->$key){
-			$field = new stdClass();
-			$field->name = elgg_echo('profile:'.$key) ;
-			$field->value = strip_tags($user->$key);
-			$profile_fields[] = $field;
+			$profile_fields[$key]['label'] = elgg_echo('profile:'.$key);
+			$profile_fields[$key]['type'] = $type;
+			$profile_fields[$key]['value'] = strip_tags($user->$key);
 		}
-		
 	}
+	
 	
 	$core['name'] = $user->name;
 	
