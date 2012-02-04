@@ -65,9 +65,9 @@ expose_function('site.getinfo',
  * @return array $river_feed contains all information for river
  */			
 function site_river_feed($limit){
+	
 	global $jsonexport;
-	//elgg_view_river_items();
-	//var_dump($jsonexport);
+	elgg_view_river_items();
 	return $jsonexport['activity'];
 	
 }
