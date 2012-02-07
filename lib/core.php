@@ -59,6 +59,7 @@ expose_function('site.getinfo',
 				'GET',
 				false,
 				false);
+				
 /**
  * Retrive river feed
  *
@@ -67,20 +68,40 @@ expose_function('site.getinfo',
 function site_river_feed($limit){
 	
 	global $jsonexport;
+	
 	elgg_view_river_items();
+
 	return $jsonexport['activity'];
 	
 }
 expose_function('site.river_feed',
 				"site_river_feed",
-				array('limit' => array('type' => 'int')),
+				array('limit' => array('type' => 'int', 'required' => 'no')),
 				"Get river feed",
 				'GET',
 				false,
-				true);
+				false);
 				
+function site_get_entities($type, $subtype, $owner_guid, $limit = 10, $offset = 0){
+	
+	$options = array(	'type' => $type, 
+						'subtype' => $subtype,
+						'limit' => $limit,
+						'offset' => $offset
+						);
 
+		global $jsonexport;
+		elgg_list_entities($options);
+		return $jsonexport;
 }
+expose_function('site.get_entities',
+				"site_get_entities",
+				array(	'type' => array('type' => 'string', 'required' => false),
+						'subtype' => array('type' => 'string', 'required' => false),
+						'owned_guid' => array('type' => 'int', 'required' => false),
+						'limit' => array('type' => 'int','required' => false),
+						'offset' => array('type' => 'int', 'required' => false)),
+				"Get list of entities",
 				'GET',
 				false,
 				false);
