@@ -79,27 +79,8 @@ expose_function('site.river_feed',
 				false,
 				true);
 				
-/**
- * Confirm if OAuth is installed for authentication
- *
- * @return true/false if OAuth is installed
- */
 
-function site_checkOAuth() {
-	//run the OAuth search
-	if(is_plugin_enabled('oauth',0) == true){
-		return true;
-	}	else {
-		$response['success'] = false;
-		$response['message'] = "OAuth is not installed";
-		return $response;
-	}
 }
-
-expose_function('site.checkOAuth',
-				"site_checkOAuth",
-				array(),
-				"check if OAuth is enabled",
 				'GET',
 				false,
 				false);
