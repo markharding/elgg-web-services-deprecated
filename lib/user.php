@@ -54,7 +54,12 @@ function user_get_profile($username) {
 		if($user->$key){
 			$profile_fields[$key]['label'] = elgg_echo('profile:'.$key);
 			$profile_fields[$key]['type'] = $type;
+			if(is_array($user->$key)){
+			$profile_fields[$key]['value'] = $user->$key;
+
+			} else {
 			$profile_fields[$key]['value'] = strip_tags($user->$key);
+			}
 		}
 	}
 	
@@ -124,12 +129,14 @@ function user_save_profile($username, $profile) {
 				'metadata_name' => $shortname
 			);
 			elgg_delete_metadata($options);
+			
 			if (isset($accesslevel[$shortname])) {
 				$access_id = (int) $accesslevel[$shortname];
 			} else {
 				// this should never be executed since the access level should always be set
 				$access_id = ACCESS_DEFAULT;
 			}
+			
 			if (is_array($value)) {
 				$i = 0;
 				foreach ($value as $interval) {
@@ -137,11 +144,14 @@ function user_save_profile($username, $profile) {
 					$multiple = ($i > 1) ? TRUE : FALSE;
 					create_metadata($owner->guid, $shortname, $interval, 'text', $owner->guid, $access_id, $multiple);
 				}
+				
 			} else {
 				create_metadata($owner->guid, $shortname, $value, 'text', $owner->guid, $access_id);
 			}
 		}
+		
 	}
+	
 	return "Success";
 }
 	

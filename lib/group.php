@@ -6,7 +6,6 @@
  * @author Saket Saurabh
  *
  */
- 
  /**
  * Web service for joining a group
  *
