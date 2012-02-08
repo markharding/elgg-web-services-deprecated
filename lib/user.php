@@ -88,7 +88,11 @@ expose_function('user.get_profile',
  * @return bool 
  */
 function user_save_profile($username, $profile) {
-	$user = get_user_by_username($username);
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
@@ -264,7 +268,11 @@ expose_function('user.register',
  * @return bool
  */           
 function user_friend_add($username, $friend) {
-	$user = get_user_by_username($username);
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
 	$return['success'] = false;
 	if (!$user) {
 		$return['message'] = elgg_echo('registration:usernamenotvalid');
@@ -318,7 +326,11 @@ expose_function('user.friend.add',
  * @return bool
  */           
 function user_friend_remove($username, $friend) {
-	$user = get_user_by_username($username);
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
 	$return['success'] = false;
 	if (!$user) {
 		$return['message'] = elgg_echo('registration:usernamenotvalid');
@@ -414,7 +426,11 @@ expose_function('user.friend.get_friends',
  * @return array
  */           
 function user_get_friends_of($username, $limit = 10, $offset = 0) {
-	$user = get_user_by_username($username);
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
 	if (!$user) {
 		throw new InvalidParameterException(elgg_echo('registration:usernamenotvalid'));
 	}
