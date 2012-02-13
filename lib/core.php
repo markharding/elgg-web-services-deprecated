@@ -43,7 +43,7 @@ function site_getinfo() {
 	$siteinfo['enabled_services'] = $enabled = unserialize(elgg_get_plugin_setting('enabled_webservices', 'web_services'));
 	
 	//return OAuth info
-	if(is_plugin_enabled('oauth',0) == true){
+	if(elgg_is_active_plugin('oauth',0) == true){
 		$siteinfo['OAuth'] = "running";
 	} else {
 		$siteinfo['OAuth'] = "no";
