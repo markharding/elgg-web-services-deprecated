@@ -6,6 +6,54 @@
  * @author Saket Saurabh
  *
  */
+  /**
+ * Web service for joining a group
+ *
+ * @param string $username username of author
+ * @param string $groupid  GUID of the group
+ *
+ * @return bool
+ */
+function get_group($guid) {
+	$group = get_entity($guid);
+	if(!$group){
+		throw new InvalidParameterException('groups:notfound');
+	}
+	$owner = $group->getOwnerEntity();
+	
+	$group_fields = elgg_get_config('group');
+	
+	foreach ($group_fields as $key => $type) {
+			$group_field[$key]['label'] = elgg_echo('profile:'.$key);
+			$group_field[$key]['type'] = $type;
+			if(is_array($group->$key)){
+			$group_field[$key]['value'] = $user->$key;
+
+			} else {
+			$group_field[$key]['value'] = strip_tags($group->$key);
+			}
+	}
+	
+	
+	
+	$group_info['name'] = $group->name;
+	$group_info['owner_name'] = $owner->name;
+	$group_info['members_count'] = count($group->getMembers($limit=0));
+	$group_info['fields'] = $group_field;
+	$group_info['avatar_url'] = get_entity_icon_url($group,'medium');
+		
+	return $group_info;
+	
+} 
+			
+expose_function('group.get',
+				"get_group",
+				array('guid' => array ('type' => 'int'),
+					),
+				"Get group",
+				'GET',
+				false,
+				false);
  /**
  * Web service for joining a group
  *
