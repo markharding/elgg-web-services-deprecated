@@ -41,7 +41,8 @@ function get_group($guid) {
 	$group_info['members_count'] = count($group->getMembers($limit=0));
 	$group_info['fields'] = $group_field;
 	$group_info['avatar_url'] = get_entity_icon_url($group,'medium');
-		
+	global $CONFIG;
+	$group_info['enabled_options'] = $CONFIG->group_tool_options;	
 	return $group_info;
 	
 } 
