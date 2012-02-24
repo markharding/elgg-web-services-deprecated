@@ -82,10 +82,12 @@ expose_function('site.river_feed',
 				false,
 				false);
 				
-function site_get_entities($type, $subtype, $owner_guid, $limit = 10, $offset = 0){
+function site_get_entities($type, $subtype,$container_guid,$owner_guid , $limit, $offset){
 	
 	$options = array(	'type' => $type, 
 						'subtype' => $subtype,
+						'owner_guid' => $owner_guid,
+						'container_guid' => $container_guid,
 						'limit' => $limit,
 						'offset' => $offset
 						);
@@ -98,9 +100,11 @@ expose_function('site.get_entities',
 				"site_get_entities",
 				array(	'type' => array('type' => 'string', 'required' => false),
 						'subtype' => array('type' => 'string', 'required' => false),
-						'owned_guid' => array('type' => 'int', 'required' => false),
-						'limit' => array('type' => 'int','required' => false),
-						'offset' => array('type' => 'int', 'required' => false)),
+						'container_guid' => array('type' => 'int', 'required' => false,  'default' =>0),
+
+						'owner_guid' => array('type' => 'int', 'required' => false),
+						'limit' => array('type' => 'int','required' => false,),
+						'offset' => array('type' => 'int', 'required' => false,)),
 				"Get list of entities",
 				'GET',
 				false,
