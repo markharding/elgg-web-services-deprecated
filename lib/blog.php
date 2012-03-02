@@ -118,11 +118,11 @@ function blog_get_post($guid, $username) {
 expose_function('blog.get_post',
 				"blog_get_post",
 				array('guid' => array ('type' => 'string'),
-						'username' => array ('type' => 'string'),
+						'username' => array ('type' => 'string', 'required' => false),
 					),
 				"Read a blog post",
 				'GET',
-				true,
+				false,
 				false);
 				
 /**
