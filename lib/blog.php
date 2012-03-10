@@ -6,6 +6,85 @@
  * @author Saket Saurabh
  *
  */
+ /**
+ * Web service to get file list by all users
+ *
+ * @param string $limit  (optional) default 10
+ * @param string $offset (optional) default 0
+ *
+ * @return array $file Array of files uploaded
+ */
+function blog_get_posts($context,  $limit = 10, $offset = 0, $username) {	
+	if(!$username) {
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+		if (!$user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
+	}
+		
+		if($context == "all"){
+		$params = array(
+			'types' => 'object',
+			'subtypes' => 'blog',
+			'limit' => $limit,
+			'full_view' => FALSE
+		);
+		}
+		if($context == "mine"){
+		$params = array(
+			'types' => 'object',
+			'subtypes' => 'blog',
+			'owner_guid' => $user->guid,
+			'limit' => $limit,
+			'full_view' => FALSE
+		);
+		}
+		$latest_blogs = elgg_get_entities($params);
+		
+		if($context == "friends"){
+		$latest_blogs = get_user_friends_objects($user->guid, 'blog', $limit, $offset);
+		}
+	
+	
+	if($latest_blogs) {
+		foreach($latest_blogs as $single ) {
+			$blog[$single->guid]['title'] = $single->title;
+			$blog[$single->guid]['excerpt'] = $single->excerpt;
+
+			$owner = get_entity($single->owner_guid);
+			$blog[$single->guid]['owner']['guid'] = $owner->guid;
+			$blog[$single->guid]['owner']['name'] = $owner->name;
+			$blog[$single->guid]['owner']['username'] = $owner->username;
+			$blog[$single->guid]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+			
+			$blog[$single->guid]['container_guid'] = $single->container_guid;
+			$blog[$single->guid]['access_id'] = $single->access_id;
+			$blog[$single->guid]['time_created'] = $single->time_created;
+			$blog[$single->guid]['time_updated'] = $single->time_updated;
+			$blog[$single->guid]['last_action'] = $single->last_action;
+		}
+	}
+	else {
+		$blog['error']['message'] = elgg_echo('file:none');
+	}
+	return $blog;
+}
+
+expose_function('blog.get_posts',
+				"blog_get_posts",
+				array(
+						'context' => array ('type' => 'string', 'required' => false, 'default' => 'all'),
+					  'limit' => array ('type' => 'int', 'required' => false),
+					  'offset' => array ('type' => 'int', 'required' => false),
+					  'username' => array ('type' => 'string', 'required' => false),
+					),
+				"Get list of blog posts",
+				'GET',
+				false,
+				false);
+
 
 /**
  * Web service for making a blog post
@@ -19,8 +98,8 @@
  *
  * @return bool
  */
-function blog_save($username, $title, $text, $excerpt = "", $tags = "blog" , $access = ACCESS_PUBLIC) {
-	$user = get_user_by_username($username);
+function blog_save($title, $text, $excerpt = "", $tags = "blog" , $access = ACCESS_PUBLIC) {
+	$user = get_loggedin_user();
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
@@ -49,7 +128,7 @@ function blog_save($username, $title, $text, $excerpt = "", $tags = "blog" , $ac
 	
 expose_function('blog.save_post',
 				"blog_save",
-				array('username' => array ('type' => 'string', 'required' => true),
+				array(
 						'title' => array ('type' => 'string', 'required' => true),
 						'text' => array ('type' => 'string', 'required' => true),
 						'excerpt' => array ('type' => 'string', 'required' => false),
