@@ -33,10 +33,11 @@ function messages_inbox($limit = 10, $offset = 0) {
 		foreach($list as $single ) {
 			$message[$single->guid]['subject'] = $single->title;
 			
-			$from = get_entity($single->fromId);
-			$message[$single->guid]['from']['guid'] = $from->guid;
-			$message[$single->guid]['from']['name'] = $from->name;
-			$message[$single->guid]['from']['avatar_url'] = get_entity_icon_url($from,'small');
+			$user = get_entity($single->fromId);
+			$message[$single->guid]['user']['guid'] = $user->guid;
+			$message[$single->guid]['user']['name'] = $user->name;
+			$message[$single->guid]['user']['username'] = $user->username;
+			$message[$single->guid]['user']['avatar_url'] = get_entity_icon_url($user,'small');
 			
 			$message[$single->guid]['timestamp'] = $single->time_created;
 			
@@ -67,7 +68,7 @@ expose_function('messages.inbox',
 				true);
 				
 /**
- * Web service to get messages inbox
+ * Web service to get sent messages
  *
  * @param string $limit  (optional) default 10
  * @param string $offset (optional) default 0
@@ -92,10 +93,12 @@ function messages_sent($limit = 10, $offset = 0) {
 		foreach($list as $single ) {
 			$message[$single->guid]['subject'] = $single->title;
 			
-			$from = get_entity($single->fromId);
-			$message[$single->guid]['from']['guid'] = $from->guid;
-			$message[$single->guid]['from']['name'] = $from->name;
-			$message[$single->guid]['from']['avatar_url'] = get_entity_icon_url($from,'small');
+
+			 $user = get_entity($single->toId);
+			$message[$single->guid]['user']['guid'] = $user->guid;
+			$message[$single->guid]['user']['name'] = $user->name;
+			$message[$single->guid]['user']['username'] = $user->username;
+			$message[$single->guid]['user']['avatar_url'] = get_entity_icon_url($user,'small');
 			
 			$message[$single->guid]['timestamp'] = $single->time_created;
 			
@@ -125,4 +128,38 @@ expose_function('messages.sent',
 				true,
 				true);
 				
+/**
+ * Web service to send a message
+ *
+ * @param string $subject (required)
+ * @param string $body (required)
+ * @param int $send_to (required)
+ * @param int $reply (optional), Default 0
+ *
+ * @return Success/Fail
+ */
+ function message_send($subject,$body, $send_to, $reply = 0) {	
+ 		
+		$recipient = get_user_by_username($send_to);
+		$recipient_guid = $recipient->guid;
+	$result = messages_send($subject, $body, $recipient_guid, 0, $reply);
+		
+	return $result;
+}
+
+ expose_function('message.send',
+				"message_send",
+				array(
+						'subject' => array ('type' => 'string'),
+						'body' => array ('type' => 'string'),
+					  	'send_to' => array ('type' => 'string'),
+						'reply' => array ('type' => 'int', 'required' => false),
+					),
+				"Send a message",
+				'POST',
+				true,
+				true);
+ 
+				
+//messages_send($subject, $body, $send_to, $from = 0, $reply = 0, $notify = true, $add_to_sent = true)			
                 ?>
