@@ -65,6 +65,7 @@ function user_get_profile($username) {
 	
 	
 	$core['name'] = $user->name;
+	$core['username'] = $user->username;
 	
 	$profile_info['core'] = $core;
 	$profile_info['profile_fields'] = $profile_fields;
