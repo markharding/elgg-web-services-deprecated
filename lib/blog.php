@@ -67,7 +67,7 @@ function blog_get_posts($context,  $limit = 10, $offset = 0, $username) {
 		}
 	}
 	else {
-		$blog['error']['message'] = elgg_echo('file:none');
+		$blog['error']['message'] = elgg_echo('blog:none');
 	}
 	return $blog;
 }
