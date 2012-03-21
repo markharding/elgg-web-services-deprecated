@@ -364,8 +364,9 @@ function user_friend_remove($friend,$username) {
 
 expose_function('user.friend.remove',
 				"user_friend_remove",
-				array('username' => array ('type' => 'string'),
+				array(
 						'friend' => array ('type' => 'string'),
+						'username' => array ('type' => 'string', 'required' => false),
 					),
 				"Remove friend",
 				'POST',
