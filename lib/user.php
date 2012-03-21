@@ -369,9 +369,9 @@ expose_function('user.friend.remove',
 						'username' => array ('type' => 'string', 'required' => false),
 					),
 				"Remove friend",
-				'POST',
+				'GET',
 				true,
-				false);				
+				true);				
 				
 /**
  * Web service to get friends of a user
