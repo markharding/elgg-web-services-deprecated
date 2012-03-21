@@ -326,7 +326,7 @@ expose_function('user.friend.add',
  *
  * @return bool
  */           
-function user_friend_remove($username, $friend) {
+function user_friend_remove($friend,$username) {
 	if(!$username){
 		$user = get_loggedin_user();
 	} else {
