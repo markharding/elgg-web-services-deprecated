@@ -17,11 +17,16 @@
  *
  * @return bool
  */
-function wire_save_post($username, $text, $access = ACCESS_PUBLIC, $wireMethod = "api") {
-	$user = get_user_by_username($username);
-	if (!$user) {
-		throw new InvalidParameterException('registration:usernamenotvalid');
+function wire_save_post($text, $access = ACCESS_PUBLIC, $wireMethod = "api", $username) {
+	if(!$username) {
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+		if (!$user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
 	}
+	
 	$return['success'] = false;
 	if (empty($text)) {
 		$return['message'] = elgg_echo("thewire:blank");
@@ -39,94 +44,87 @@ function wire_save_post($username, $text, $access = ACCESS_PUBLIC, $wireMethod =
 				
 expose_function('wire.save_post',
 				"wire_save_post",
-				array('username' => array ('type' => 'string'),
+				array(
 						'text' => array ('type' => 'string'),
 						'access' => array ('type' => 'string', 'required' => false),
 						'wireMethod' => array ('type' => 'string', 'required' => false),
+						'username' => array ('type' => 'string', 'required' => false),
 					),
 				"Post a wire post",
 				'POST',
 				true,
-				false);
+				true);
 				
 /**
  * Web service for read latest wire post of user
  *
+ * @param string $context all/mine/friends
  * @param string $username username of author
  *
  * @return bool
  */
-function wire_get_post($username, $limit = 10, $offset = 0) {
-	$user = get_user_by_username($username);
-	if (!$user) {
-		throw new InvalidParameterException('registration:usernamenotvalid');
+function wire_get_post($context, $limit = 10, $offset = 0, $username) {
+	if(!$username) {
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+		if (!$user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
 	}
+		
+	if($context == "all"){
+		$params = array(
+			'types' => 'object',
+			'subtypes' => 'thewire',
+			'limit' => $limit,
+			'full_view' => FALSE
+		);
+		}
+		if($context == "mine"){
+		$params = array(
+			'types' => 'object',
+			'subtypes' => 'thewire',
+			'owner_guid' => $user->guid,
+			'limit' => $limit,
+			'full_view' => FALSE
+		);
+		}
+		$latest_wire = elgg_get_entities($params);
+		
+		if($context == "friends"){
+		$latest_wire = get_user_friends_objects($user->guid, 'thewire', $limit, $offset);
+		}
 
-	$params = array(
-		'types' => 'object',
-		'subtypes' => 'thewire',
-		'owner_guid' => $user->guid,
-		'limit' => $limit,
-		'offset' => $offset,
-	);
-	$latest_wire = elgg_get_entities($params);
-
+if($latest_wire){
 	foreach($latest_wire as $single ) {
-		$wire[$single->guid]['time_created'] = $single->time_created;
+		
+		$owner = get_entity($single->owner_guid);
+		$wire[$single->guid]['owner']['guid'] = $owner->guid;
+		$wire[$single->guid]['owner']['name'] = $owner->name;
+		$wire[$single->guid]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+			
+		$wire[$single->guid]['time_created'] = (int)$single->time_created;
 		$wire[$single->guid]['description'] = $single->description;
+	} 
+} else {
+		$wire['error']['message'] = elgg_echo('thewire:noposts');
 	}
 	return $wire;
 	} 
 				
 expose_function('wire.get_posts',
 				"wire_get_post",
-				array('username' => array ('type' => 'string'),
+				array(	'context' => array ('type' => 'string', 'required' => false, 'default' => 'all'),
 						'limit' => array ('type' => 'int', 'required' => false),
 						'offset' => array ('type' => 'int', 'required' => false),
+						'username' => array ('type' => 'string', 'required' =>false),
 					),
 				"Read lates wire post",
 				'GET',
 				false,
 				false);
 				
-/**
- * Web service for read latest wire post by friends
- *
- * @param string $username username
- * @param string $limit    number of results to display
- * @param string $offset   offset of list
- *
- * @return bool
- */
-function wire_get_friends_posts($username, $limit = 10, $offset = 0) {
-	$user = get_user_by_username($username);
-	if (!$user) {
-		throw new InvalidParameterException('registration:usernamenotvalid');
-	}
-
-	$posts = get_user_friends_objects($user->guid, 'thewire', $limit, $offset);
-
-	if($posts) {
-		foreach($posts as $single ) {
-			$wire[$single->guid]['time_created'] = $single->time_created;
-			$wire[$single->guid]['description'] = $single->description;
-		}
-	} else {
-		$wire['error']['message'] = elgg_echo('thewire:noposts');
-	}
-	return $wire;
-} 
-				
-expose_function('wire.get_friends_posts',
-				"wire_get_friends_posts",
-				array('username' => array ('type' => 'string'),
-						'limit' => array ('type' => 'int', 'required' => false),
-						'offset' => array ('type' => 'int', 'required' => false),
-					),
-				"Read lates wire post",
-				'GET',
-				true,
-				false);
 				
 /**
  * Web service for delete a wire post
