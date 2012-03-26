@@ -26,6 +26,9 @@ $english = array(
 	'web_services:tests:run' => 'Run tests',
 	'web_services:likes' => 'Likes',
 	'likes:notallowed' => 'Not allowed to like',
+	
+	//A resolution to json convertion error (for river)
+	'river:update:user:default' => ' updated their profile ',
 );
 				
 add_translation("en", $english);
