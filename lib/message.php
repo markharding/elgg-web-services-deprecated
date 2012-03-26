@@ -50,6 +50,38 @@ expose_function('messages.read',
 				true,
 				true);
 /**
+ * Web service to get a count of the users unread messages
+ *
+ *
+ * @return array $message Array of message content
+ */
+function messages_count() {	
+
+		$user = get_loggedin_user();
+		$params = array(
+			'type' => 'object',
+			'subtype' => 'messages',
+			'metadata_name' => 'toId',
+			'metadata_value' => $user->guid,
+			'owner_guid' => $user->guid,
+			'full_view' => false,
+						);
+	
+	
+	$list = elgg_get_entities_from_metadata($params);
+	$count = count($list);
+	return $count;
+}
+	
+expose_function('messages.count',
+				"messages_count",
+				array(
+					),
+				"Get a count of the users unread messages",
+				'GET',
+				true,
+				true);
+/**
  * Web service to get messages inbox
  *
  * @param string $limit  (optional) default 10
