@@ -7,12 +7,11 @@
  *
  */
 /**
- * Web service to get messages inbox
+ * Web service to read a message
  *
- * @param string $limit  (optional) default 10
- * @param string $offset (optional) default 0
+ * @param int $guid
  *
- * @return array $file Array of files uploaded
+ * @return array $message Array of message content
  */
 function messages_read($guid) {	
 
