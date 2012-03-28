@@ -3,7 +3,7 @@
  * Elgg Webservices plugin 
  * 
  * @package Webservice
- * @author Saket Saurabh
+ * @author Mark Harding
  *
  */
  

@@ -3,7 +3,7 @@
  * Elgg Webservice plugin 
  * 
  * @package Webservice
- * @author Saket Saurabh/Mark Harding
+ * @author Mark Harding (based on work started by Saket Saurabh)
  *
  */
 function web_services_init() {

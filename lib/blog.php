@@ -154,71 +154,6 @@ expose_function('blog.save_post',
 				'POST',
 				true,
 				false);
-				
-/**
- * Web service for read a blog post
- *
- * @param string $guid     GUID of a blog entity
- * @param string $username Username of reader (Send NULL if no user logged in)
- * @param string $password Password for authentication of username (Send NULL if no user logged in)
- *
- * @return string $title       Title of blog post
- * @return string $content     Text of blog post
- * @return string $excerpt     Excerpt
- * @return string $tags        Tags of blog post
- * @return string $owner_guid  GUID of owner
- * @return string $access_id   Access level of blog post (0,-2,1,2)
- * @return string $status      (Published/Draft)
- * @return string $comments_on On/Off
- */
-function blog_get_post($guid, $username) {
-	$return = array();
-	$blog = get_entity($guid);
-
-	if (!elgg_instanceof($blog, 'object', 'blog')) {
-		$return['content'] = elgg_echo('blog:error:post_not_found');
-		return $return;
-	}
-	
-	$user = get_user_by_username($username);
-	if ($user) {
-		if (!has_access_to_entity($blog, $user)) {
-			$return['content'] = elgg_echo('blog:error:post_not_found');
-			return $return;
-		}
-		
-		if ($blog->status!='published' && $user->guid!=$blog->owner_guid) {
-			$return['content'] = elgg_echo('blog:error:post_not_found');
-			return $return;
-		}
-	} else {
-		if($blog->access_id!=2) {
-			$return['content'] = elgg_echo('blog:error:post_not_found');
-			return $return;
-		}
-	}
-
-	$return['title'] = htmlspecialchars($blog->title);
-	$return['content'] = $blog->description;
-	$return['excerpt'] = $blog->excerpt;
-	$return['tags'] = $blog->tags;
-	$return['owner_guid'] = $blog->owner_guid;
-	$return['access_id'] = $blog->access_id;
-	$return['status'] = $blog->status;
-	$return['comments_on'] = $blog->comments_on;
-	return $return;
-}
-	
-expose_function('blog.get_post',
-				"blog_get_post",
-				array('guid' => array ('type' => 'string'),
-						'username' => array ('type' => 'string', 'required' => false),
-					),
-				"Read a blog post",
-				'GET',
-				false,
-				false);
-				
 /**
  * Web service for delete a blog post
  *
@@ -268,132 +203,173 @@ expose_function('blog.delete_post',
 				"Read a blog post",
 				'POST',
 				true,
-				false);
+				false);			
+/**
+ * Web service for read a blog post
+ *
+ * @param string $guid     GUID of a blog entity
+ * @param string $username Username of reader (Send NULL if no user logged in)
+ * @param string $password Password for authentication of username (Send NULL if no user logged in)
+ *
+ * @return string $title       Title of blog post
+ * @return string $content     Text of blog post
+ * @return string $excerpt     Excerpt
+ * @return string $tags        Tags of blog post
+ * @return string $owner_guid  GUID of owner
+ * @return string $access_id   Access level of blog post (0,-2,1,2)
+ * @return string $status      (Published/Draft)
+ * @return string $comments_on On/Off
+ */
+function blog_get_post($guid, $username) {
+	$return = array();
+	$blog = get_entity($guid);
 
-								
-/**
- * Web service for read latest blog post by friends
- *
- * @param string $username username
- * @param string $limit    number of results to display
- * @param string $offset   offset of list
- *
- * @return string $time_created Time at which blog post was made
- * @return string $title        Title of blog post
- * @return string $content      Text of blog post
- * @return string $excerpt      Excerpt
- * @return string $tags         Tags of blog post
- * @return string $owner_guid   GUID of owner
- * @return string $access_id    Access level of blog post (0,-2,1,2)
- * @return string $status       (Published/Draft)
- * @return string $comments_on  On/Off
- */
-function blog_get_friends_posts($username, $limit = 10, $offset = 0) {
+	if (!elgg_instanceof($blog, 'object', 'blog')) {
+		$return['content'] = elgg_echo('blog:error:post_not_found');
+		return $return;
+	}
+	
 	$user = get_user_by_username($username);
-	if (!$user) {
-		throw new InvalidParameterException('registration:usernamenotvalid');
-	}
-	
-	$posts = get_user_friends_objects($user->guid, 'blog', $limit, $offset);
-	if($posts) {
-		foreach($posts as $single ) {
-			$blog[$single->guid]['time_created'] = $single->time_created;
-			$blog[$single->guid]['title'] = htmlspecialchars($single->title);
-			$blog[$single->guid]['content'] = $single->description;
-			$blog[$single->guid]['excerpt'] = $single->excerpt;
-			$blog[$single->guid]['tags'] = $single->tags;
-			$blog[$single->guid]['owner_guid'] = $single->owner_guid;
-			$blog[$single->guid]['access_id'] = $single->access_id;
-			$blog[$single->guid]['status'] = $single->status;
-			$blog[$single->guid]['comments_on'] = $single->comments_on;
+	if ($user) {
+		if (!has_access_to_entity($blog, $user)) {
+			$return['content'] = elgg_echo('blog:error:post_not_found');
+			return $return;
+		}
+		
+		if ($blog->status!='published' && $user->guid!=$blog->owner_guid) {
+			$return['content'] = elgg_echo('blog:error:post_not_found');
+			return $return;
 		}
 	} else {
-		$blog['error']['message'] = elgg_echo("blog:message:noposts");
+		if($blog->access_id!=2) {
+			$return['content'] = elgg_echo('blog:error:post_not_found');
+			return $return;
+		}
 	}
-	return $blog;
-	} 
-				
-expose_function('blog.get_friends_posts',
-				"blog_get_friends_posts",
-				array('username' => array ('type' => 'string'),
-						'limit' => array ('type' => 'int', 'required' => false),
-						'offset' => array ('type' => 'int', 'required' => false),
+
+	$return['title'] = htmlspecialchars($blog->title);
+	$return['content'] = strip_tags($blog->description);
+	$return['excerpt'] = $blog->excerpt;
+	$return['tags'] = $blog->tags;
+	$return['owner_guid'] = $blog->owner_guid;
+	$return['access_id'] = $blog->access_id;
+	$return['status'] = $blog->status;
+	$return['comments_on'] = $blog->comments_on;
+	return $return;
+}
+	
+expose_function('blog.get_post',
+				"blog_get_post",
+				array('guid' => array ('type' => 'string'),
+						'username' => array ('type' => 'string', 'required' => false),
 					),
-				"get latest bolg posts by friends",
+				"Read a blog post",
 				'GET',
-				true,
+				false,
 				false);
-				
 /**
- * Web service to get latest blog post by a user
+ * Web service to retrieve comments on a blog post
  *
- * @param string $username username
- * @param string $limit    number of results to display
- * @param string $offset   offset of list
+ * @param string $guid blog guid
+ * @param string $limit    Number of users to return
+ * @param string $offset   Indexing offset, if any
  *
- * @return string $time_created Time at which blog post was made
- * @return string $title        Title of blog post
- * @return string $content      Text of blog post
- * @return string $excerpt      Excerpt
- * @return string $tags         Tags of blog post
- * @return string $owner_guid   GUID of owner
- * @return string $access_id    Access level of blog post (0,-2,1,2)
- * @return string $status       (Published/Draft)
- * @return string $comments_on  On/Off
- */
-function blog_get_latest_posts($username = NULL, $limit = 10, $offset = 0) {
-	if($username) {
-		$user = get_user_by_username($username);
-		if (!$user) {
-			throw new InvalidParameterException('registration:usernamenotvalid');
-		}
-		$posts = elgg_get_entities(array(
-				'type' => 'object',
-				'subtype' => 'blog',
-				'owner_guids' => $user->guid,
-				'limit' => $limit,
-				'offset' => $offset,
-				'container_guids' => $$user->guid,
-				'created_time_lower' => 0,
-				'created_time_upper' => 0
-			));
-	} else {
-		$posts = elgg_get_entities(array(
-				'type' => 'object',
-				'subtype' => 'blog',
-				'limit' => $limit,
-				'offset' => $offset,
-				'container_guids' => $$user->guid,
-				'created_time_lower' => 0,
-				'created_time_upper' => 0
-			));
-	}
+ * @return array
+ */    				
+function blog_get_comments($guid, $limit = 10, $offset = 0){
+	$blog = get_entity($guid);
 	
-	if($posts) {
-		foreach($posts as $single ) {
-			$blog[$single->guid]['time_created'] = $single->time_created;
-			$blog[$single->guid]['title'] = htmlspecialchars($single->title);
-			$blog[$single->guid]['content'] = $single->description;
-			$blog[$single->guid]['excerpt'] = $single->excerpt;
-			$blog[$single->guid]['tags'] = $single->tags;
-			$blog[$single->guid]['owner_guid'] = $single->owner_guid;
-			$blog[$single->guid]['access_id'] = $single->access_id;
-			$blog[$single->guid]['status'] = $single->status;
-			$blog[$single->guid]['comments_on'] = $single->comments_on;
-		}
-	} else {
-		$blog['error']['message'] = elgg_echo("blog:message:noposts");
+$options = array(
+	'annotations_name' => 'generic_comment',
+	'guid' => $guid,
+	'limit' => $limit,
+	'pagination' => false,
+	'reverse_order_by' => true,
+);
+
+	$comments = elgg_get_annotations($options);
+
+	if($comments){
+	foreach($comments as $post){
+		$return[$post->id]['description'] = strip_tags($post->value);
+		
+		$owner = get_entity($post->owner_guid);
+		$return[$post->id]['owner']['guid'] = $owner->guid;
+		$return[$post->id]['owner']['name'] = $owner->name;
+		$return[$post->id]['owner']['username'] = $owner->username;
+		$return[$post->id]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+		
+		$return[$post->id]['time_created'] = (int)$post->time_created;
 	}
-	return $blog;
-	} 
-				
-expose_function('blog.get_latest_posts',
-				"blog_get_latest_posts",
-				array('username' => array ('type' => 'string', 'required' => false),
-						'limit' => array ('type' => 'int', 'required' => false),
-						'offset' => array ('type' => 'int', 'required' => false),
+} else {
+		$return['error']['message'] = elgg_echo('generic_comment:none');
+	}
+	return $return;
+}
+expose_function('blog.get_comments',
+				"blog_get_comments",
+				array(	'guid' => array ('type' => 'string'),
+						'limit' => array ('type' => 'int', 'required' => false, 'default' => 10),
+						'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
+						
 					),
-				"Read latest wire post by a single user",
+				"Get comments for a blog post",
 				'GET',
+				false,
+				false);	
+/**
+ * Web service to comment on a post
+ *
+ * @param int $guid blog guid
+ * @param string $text
+ * @param int $access_id
+ *
+ * @return array
+ */    				
+function blog_post_comment($guid, $text){
+	
+	$entity = get_entity($guid);
+
+	$user = elgg_get_logged_in_user_entity();
+
+	$annotation = create_annotation($entity->guid,
+								'generic_comment',
+								$text,
+								"",
+								$user->guid,
+								$entity->access_id);
+
+
+	if($annotation){
+		// notify if poster wasn't owner
+		if ($entity->owner_guid != $user->guid) {
+
+			notify_user($entity->owner_guid,
+					$user->guid,
+					elgg_echo('generic_comment:email:subject'),
+					elgg_echo('generic_comment:email:body', array(
+						$entity->title,
+						$user->name,
+						$text,
+						$entity->getURL(),
+						$user->name,
+						$user->getURL()
+				))
+			);
+		}
+	
+		$return['success']['message'] = elgg_echo('generic_comment:posted');
+	} else {
+		$return['error']['message'] = elgg_echo('generic_comment:failure');
+	}
+	return $return;
+}
+expose_function('blog.post_comment',
+				"blog_post_comment",
+				array(	'guid' => array ('type' => 'int'),
+						'text' => array ('type' => 'string'),
+					),
+				"Post a comment on a blog post",
+				'POST',
 				true,
-				false);
+				true);	
