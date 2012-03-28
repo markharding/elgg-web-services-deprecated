@@ -1,20 +1,25 @@
 <?php
 /**
  * Elgg Webservices plugin 
+ * Blogs
  * 
  * @package Webservice
- * @author Saket Saurabh
+ * @author Mark Harding
  *
  */
+ 
  /**
  * Web service to get file list by all users
  *
- * @param string $limit  (optional) default 10
- * @param string $offset (optional) default 0
+ * @param string $context eg. all, friends, mine, groups
+ * @param int $limit  (optional) default 10
+ * @param int $offset (optional) default 0
+ * @param int $group_guid (optional)  the guid of a group, $context must be set to 'group'
+ * @param string $username (optional) the username of the user default loggedin user
  *
  * @return array $file Array of files uploaded
  */
-function blog_get_posts($context,  $limit = 10, $offset = 0, $username) {	
+function blog_get_posts($context,  $limit = 10, $offset = 0,$group_guid, $username) {	
 	if(!$username) {
 		$user = get_loggedin_user();
 	} else {
@@ -29,16 +34,25 @@ function blog_get_posts($context,  $limit = 10, $offset = 0, $username) {
 			'types' => 'object',
 			'subtypes' => 'blog',
 			'limit' => $limit,
-			'full_view' => FALSE
+			'full_view' => FALSE,
 		);
 		}
-		if($context == "mine"){
+		if($context == "mine" || $context ==  "user"){
 		$params = array(
 			'types' => 'object',
 			'subtypes' => 'blog',
 			'owner_guid' => $user->guid,
 			'limit' => $limit,
-			'full_view' => FALSE
+			'full_view' => FALSE,
+		);
+		}
+		if($context == "group"){
+		$params = array(
+			'types' => 'object',
+			'subtypes' => 'blog',
+			'container_guid'=> $group_guid,
+			'limit' => $limit,
+			'full_view' => FALSE,
 		);
 		}
 		$latest_blogs = elgg_get_entities($params);
@@ -61,9 +75,9 @@ function blog_get_posts($context,  $limit = 10, $offset = 0, $username) {
 			
 			$blog[$single->guid]['container_guid'] = $single->container_guid;
 			$blog[$single->guid]['access_id'] = $single->access_id;
-			$blog[$single->guid]['time_created'] = $single->time_created;
-			$blog[$single->guid]['time_updated'] = $single->time_updated;
-			$blog[$single->guid]['last_action'] = $single->last_action;
+			$blog[$single->guid]['time_created'] = (int)$single->time_created;
+			$blog[$single->guid]['time_updated'] = (int)$single->time_updated;
+			$blog[$single->guid]['last_action'] = (int)$single->last_action;
 		}
 	}
 	else {
@@ -76,9 +90,10 @@ expose_function('blog.get_posts',
 				"blog_get_posts",
 				array(
 						'context' => array ('type' => 'string', 'required' => false, 'default' => 'all'),
-					  'limit' => array ('type' => 'int', 'required' => false),
-					  'offset' => array ('type' => 'int', 'required' => false),
-					  'username' => array ('type' => 'string', 'required' => false),
+					  'limit' => array ('type' => 'int', 'required' => false, 'default' => 10),
+					  'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
+					  'group_guid' => array ('type'=> 'int', 'required'=>false, 'default' =>0),
+					   'username' => array ('type' => 'string', 'required' => false),
 					),
 				"Get list of blog posts",
 				'GET',

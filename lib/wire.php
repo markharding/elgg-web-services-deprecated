@@ -78,16 +78,18 @@ function wire_get_post($context, $limit = 10, $offset = 0, $username) {
 			'types' => 'object',
 			'subtypes' => 'thewire',
 			'limit' => $limit,
-			'full_view' => FALSE
+			'full_view' => FALSE,
+			'reverse_order_by'  =>  true,
 		);
 		}
-		if($context == "mine"){
+		if($context == "mine" || $context == "user"){
 		$params = array(
 			'types' => 'object',
 			'subtypes' => 'thewire',
 			'owner_guid' => $user->guid,
 			'limit' => $limit,
-			'full_view' => FALSE
+			'full_view' => FALSE,
+			'reverse_order_by'      =>  true
 		);
 		}
 		$latest_wire = elgg_get_entities($params);
