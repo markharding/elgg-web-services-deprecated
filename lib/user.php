@@ -497,3 +497,108 @@ expose_function('user.get_groups',
 				'GET',
 				false,
 				false);	
+				
+/**
+ * Web service to retrieve the messageboard for a user
+ *
+ * @param string $username Username
+ * @param string $limit    Number of users to return
+ * @param string $offset   Indexing offset, if any
+ *
+ * @return array
+ */    				
+function user_get_messageboard($limit = 10, $offset = 0, $username){
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+		if (!$user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
+	}
+	
+$options = array(
+	'annotations_name' => 'messageboard',
+	'guid' => $user->guid,
+	'limit' => $limit,
+	'pagination' => false,
+	'reverse_order_by' => true,
+);
+
+	$messageboard = elgg_get_annotations($options);
+
+	if($messageboard){
+	foreach($messageboard as $post){
+		$return[$post->id]['description'] = $post->value;
+		
+		$owner = get_entity($post->owner_guid);
+		$return[$post->id]['owner']['guid'] = $owner->guid;
+		$return[$post->id]['owner']['name'] = $owner->name;
+		$return[$post->id]['owner']['username'] = $owner->username;
+		$return[$post->id]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+		
+		$return[$post->id]['time_created'] = (int)$post->time_created;
+	}
+} else {
+		$return['error']['message'] = elgg_echo('messageboard:none');
+	}
+	return $return;
+}
+expose_function('user.get_messageboard',
+				"user_get_messageboard",
+				array(
+						'limit' => array ('type' => 'int', 'required' => false, 'default' => 10),
+						'offset' => array ('type' => 'int', 'required' => false, 'default' => 0),
+						'username' => array ('type' => 'string', 'required' => false),
+					),
+				"Get a users messageboard",
+				'GET',
+				false,
+				false);	
+/**
+ * Web service to post to a messageboard
+ *
+ * @param string $text
+ * @param string $to - username
+ * @param string $from - username
+ *
+ * @return array
+ */    				
+function user_post_messageboard($text, $to, $from){
+	if(!$to){
+		$to_user = get_loggedin_user();
+	} else {
+		$to_user = get_user_by_username($to);
+		if (!$to_user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
+	}
+	if(!$from){
+		$from_user = get_loggedin_user();
+	} else {
+		$from_user = get_user_by_username($from);
+		if (!$from_user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
+	}
+	
+	$result = messageboard_add($from_user, $to_user, $text, 2);
+
+	if($result){
+		$return['success']['message'] = elgg_echo('messageboard:posted');
+	} else {
+		$return['error']['message'] = elgg_echo('messageboard:failure');
+	}
+	return $return;
+}
+expose_function('user.post_messageboard',
+				"user_post_messageboard",
+				array(
+						'text' => array ('type' => 'string'),
+						'to' => array ('type' => 'string', 'required' => false),
+						'from' => array ('type' => 'string', 'required' => false),
+					),
+				"Post a messageboard post",
+				'POST',
+				true,
+				true);	
