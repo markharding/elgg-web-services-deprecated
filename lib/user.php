@@ -393,16 +393,17 @@ function user_get_friends($username, $limit = 10, $offset = 0) {
 	}
 	$friends = get_user_friends($user->guid, '' , $limit, $offset);
 	
-	$success = false;
-	foreach($friends as $friend) {
-		$return[$friend->guid]['username'] = $friend->username;
-		$return[$friend->guid]['name'] = $friend->name;
-		$return[$friend->guid]['avatar_url'] = get_entity_icon_url($friend,'small');
-		$success = true;
+	if($friends){
+	foreach($friends as $single) {
+		$friend['guid'] = $single->guid;
+		$friend['username'] = $single->username;
+		$friend['name'] = $single->name;
+		$friend['avatar_url'] = get_entity_icon_url($single,'small');
+		$return[] = $friend;
 	}
-	
-	if(!$success) {
-		$return['error']['message'] = elgg_echo('friends:none');
+	} else {
+		$msg = elgg_echo('friends:none');
+		throw new InvalidParameterException($msg);
 	}
 	return $return;
 }
@@ -440,8 +441,10 @@ function user_get_friends_of($username, $limit = 10, $offset = 0) {
 	
 	$success = false;
 	foreach($friends as $friend) {
-		$return[$friend->guid]['username'] = $friend->username;
-		$return[$friend->guid]['name'] = $friend->name;
+		$return['guid'] = $friend->guid;
+		$return['username'] = $friend->username;
+		$return['name'] = $friend->name;
+		$return['avatar_url'] = get_entity_icon_url($friend,'small');
 		$success = true;
 	}
 	
@@ -479,11 +482,17 @@ function user_get_groups($username, $limit, $offset){
 	}
 	
 	$groups = $user->getGroups();
-	foreach($groups as $group){
-		$return[$group->guid]['guid'] = $group->guid;
-		$return[$group->guid]['name'] = $group->name;
-		$return[$group->guid]['members'] = count($group->getMembers($limit=0));
-		$return[$group->guid]['avatar_url'] = get_entity_icon_url($group,'small');
+	if($groups){
+	foreach($groups as $single){
+		$group['guid'] = $single->guid;
+		$group['name'] = $single->name;
+		$group['members'] = count($single->getMembers($limit=0));
+		$group['avatar_url'] = get_entity_icon_url($single,'small');
+		$return[] = $group;
+	}
+	} else {
+		$msg = elgg_echo('groups:none');
+		throw new InvalidParameterException($msg);
 	}
 	return $return;
 }
@@ -526,23 +535,26 @@ $options = array(
 );
 
 	$messageboard = elgg_get_annotations($options);
-
+	
 	if($messageboard){
-	foreach($messageboard as $post){
-		$return[$post->id]['description'] = $post->value;
+	foreach($messageboard as $single){
+		$post['id'] = $single->id;
+		$post['description'] = $single->value;
 		
-		$owner = get_entity($post->owner_guid);
-		$return[$post->id]['owner']['guid'] = $owner->guid;
-		$return[$post->id]['owner']['name'] = $owner->name;
-		$return[$post->id]['owner']['username'] = $owner->username;
-		$return[$post->id]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+		$owner = get_entity($single->owner_guid);
+		$post['owner']['guid'] = $owner->guid;
+		$post['owner']['name'] = $owner->name;
+		$post['owner']['username'] = $owner->username;
+		$post['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
 		
-		$return[$post->id]['time_created'] = (int)$post->time_created;
+		$post['time_created'] = (int)$single->time_created;
+		$return[] = $post;
 	}
 } else {
-		$return['error']['message'] = elgg_echo('messageboard:none');
+		$msg = elgg_echo('messageboard:none');
+		throw new InvalidParameterException($msg);
 	}
-	return $return;
+ 	return $return;
 }
 expose_function('user.get_messageboard',
 				"user_get_messageboard",

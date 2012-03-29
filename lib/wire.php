@@ -63,7 +63,7 @@ expose_function('wire.save_post',
  *
  * @return bool
  */
-function wire_get_post($context, $limit = 10, $offset = 0, $username) {
+function wire_get_posts($context, $limit = 10, $offset = 0, $username) {
 	if(!$username) {
 		$user = get_loggedin_user();
 	} else {
@@ -79,7 +79,6 @@ function wire_get_post($context, $limit = 10, $offset = 0, $username) {
 			'subtypes' => 'thewire',
 			'limit' => $limit,
 			'full_view' => FALSE,
-			'reverse_order_by'  =>  true,
 		);
 		}
 		if($context == "mine" || $context == "user"){
@@ -89,7 +88,6 @@ function wire_get_post($context, $limit = 10, $offset = 0, $username) {
 			'owner_guid' => $user->guid,
 			'limit' => $limit,
 			'full_view' => FALSE,
-			'reverse_order_by'      =>  true
 		);
 		}
 		$latest_wire = elgg_get_entities($params);
@@ -100,23 +98,27 @@ function wire_get_post($context, $limit = 10, $offset = 0, $username) {
 
 if($latest_wire){
 	foreach($latest_wire as $single ) {
+		$wire['guid'] = $single->guid;
 		
 		$owner = get_entity($single->owner_guid);
-		$wire[$single->guid]['owner']['guid'] = $owner->guid;
-		$wire[$single->guid]['owner']['name'] = $owner->name;
-		$wire[$single->guid]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+		$wire['owner']['guid'] = $owner->guid;
+		$wire['owner']['name'] = $owner->name;
+		$wire['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
 			
-		$wire[$single->guid]['time_created'] = (int)$single->time_created;
-		$wire[$single->guid]['description'] = $single->description;
+		$wire['time_created'] = (int)$single->time_created;
+		$wire['description'] = $single->description;
+		$return[] = $wire;
 	} 
 } else {
-		$wire['error']['message'] = elgg_echo('thewire:noposts');
+		$msg = elgg_echo('thewire:noposts');
+		throw new InvalidParameterException($msg);
 	}
-	return $wire;
+	
+	return $return;
 	} 
 				
 expose_function('wire.get_posts',
-				"wire_get_post",
+				"wire_get_posts",
 				array(	'context' => array ('type' => 'string', 'required' => false, 'default' => 'all'),
 						'limit' => array ('type' => 'int', 'required' => false),
 						'offset' => array ('type' => 'int', 'required' => false),

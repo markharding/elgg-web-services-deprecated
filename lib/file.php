@@ -63,26 +63,29 @@ function file_get_files($context,  $limit = 10, $offset = 0, $group_guid, $usern
 	
 	if($latest_file) {
 		foreach($latest_file as $single ) {
-			$file[$single->guid]['title'] = $single->title;
+			$file['guid'] = $single->guid;
+			$file['title'] = $single->title;
 			
 			$owner = get_entity($single->owner_guid);
-			$file[$single->guid]['owner']['guid'] = $owner->guid;
-			$file[$single->guid]['owner']['name'] = $owner->name;
-			$file[$single->guid]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+			$file['owner']['guid'] = $owner->guid;
+			$file['owner']['name'] = $owner->name;
+			$file['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
 			
-			$file[$single->guid]['container_guid'] = $single->container_guid;
-			$file[$single->guid]['access_id'] = $single->access_id;
-			$file[$single->guid]['time_created'] = (int)$single->time_created;
-			$file[$single->guid]['time_updated'] = (int)$single->time_updated;
-			$file[$single->guid]['last_action'] = (int)$single->last_action;
-			$file[$single->guid]['MIMEType'] = $single->mimetype;
-			$file[$single->guid]['file_icon'] = get_entity_icon_url($single,'small');
+			$file['container_guid'] = $single->container_guid;
+			$file['access_id'] = $single->access_id;
+			$file['time_created'] = (int)$single->time_created;
+			$file['time_updated'] = (int)$single->time_updated;
+			$file['last_action'] = (int)$single->last_action;
+			$file['MIMEType'] = $single->mimetype;
+			$file['file_icon'] = get_entity_icon_url($single,'small');
+			$return[] = $file;
 		}
 	}
 	else {
-		$file['error']['message'] = elgg_echo('file:none');
+		$msg = elgg_echo('file:none');
+		throw new InvalidParameterException($msg);
 	}
-	return $file;
+	return $return;
 }
 	
 expose_function('file.get_files',

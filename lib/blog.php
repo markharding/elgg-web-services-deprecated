@@ -64,26 +64,29 @@ function blog_get_posts($context,  $limit = 10, $offset = 0,$group_guid, $userna
 	
 	if($latest_blogs) {
 		foreach($latest_blogs as $single ) {
-			$blog[$single->guid]['title'] = $single->title;
-			$blog[$single->guid]['excerpt'] = $single->excerpt;
+			$blog['guid'] = $single->guid;
+			$blog['title'] = $single->title;
+			$blog['excerpt'] = $single->excerpt;
 
 			$owner = get_entity($single->owner_guid);
-			$blog[$single->guid]['owner']['guid'] = $owner->guid;
-			$blog[$single->guid]['owner']['name'] = $owner->name;
-			$blog[$single->guid]['owner']['username'] = $owner->username;
-			$blog[$single->guid]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+			$blog['owner']['guid'] = $owner->guid;
+			$blog['owner']['name'] = $owner->name;
+			$blog['owner']['username'] = $owner->username;
+			$blog['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
 			
-			$blog[$single->guid]['container_guid'] = $single->container_guid;
-			$blog[$single->guid]['access_id'] = $single->access_id;
-			$blog[$single->guid]['time_created'] = (int)$single->time_created;
-			$blog[$single->guid]['time_updated'] = (int)$single->time_updated;
-			$blog[$single->guid]['last_action'] = (int)$single->last_action;
+			$blog['container_guid'] = $single->container_guid;
+			$blog['access_id'] = $single->access_id;
+			$blog['time_created'] = (int)$single->time_created;
+			$blog['time_updated'] = (int)$single->time_updated;
+			$blog['last_action'] = (int)$single->last_action;
+			$return[] = $blog;
 		}
 	}
 	else {
-		$blog['error']['message'] = elgg_echo('blog:none');
+		$msg = elgg_echo('blog:none');
+		throw new InvalidParameterException($msg);
 	}
-	return $blog;
+	return $return;
 }
 
 expose_function('blog.get_posts',
@@ -290,19 +293,22 @@ $options = array(
 	$comments = elgg_get_annotations($options);
 
 	if($comments){
-	foreach($comments as $post){
-		$return[$post->id]['description'] = strip_tags($post->value);
+	foreach($comments as $single){
+		$comment['guid'] = $single->id;
+		$comment['description'] = strip_tags($single->value);
 		
-		$owner = get_entity($post->owner_guid);
-		$return[$post->id]['owner']['guid'] = $owner->guid;
-		$return[$post->id]['owner']['name'] = $owner->name;
-		$return[$post->id]['owner']['username'] = $owner->username;
-		$return[$post->id]['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
+		$owner = get_entity($single->owner_guid);
+		$comment['owner']['guid'] = $owner->guid;
+		$comment['owner']['name'] = $owner->name;
+		$comment['owner']['username'] = $owner->username;
+		$comment['owner']['avatar_url'] = get_entity_icon_url($owner,'small');
 		
-		$return[$post->id]['time_created'] = (int)$post->time_created;
+		$comment['time_created'] = (int)$single->time_created;
+		$return[] = $comment;
 	}
 } else {
-		$return['error']['message'] = elgg_echo('generic_comment:none');
+		$msg = elgg_echo('generic_comment:none');
+		throw new InvalidParameterException($msg);
 	}
 	return $return;
 }
@@ -360,7 +366,8 @@ function blog_post_comment($guid, $text){
 	
 		$return['success']['message'] = elgg_echo('generic_comment:posted');
 	} else {
-		$return['error']['message'] = elgg_echo('generic_comment:failure');
+		$msg = elgg_echo('generic_comment:failure');
+		throw new InvalidParameterException($msg);
 	}
 	return $return;
 }

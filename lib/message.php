@@ -18,23 +18,25 @@ function messages_read($guid) {
 			$single = get_entity($guid);
 			
 			$single->readYet = true;
+			
+			$message['guid'] = $single->guid;
 	
 			$message[$single->guid]['subject'] = $single->title;
 			
 			$user = get_entity($single->fromId);
-			$message[$single->guid]['user']['guid'] = $user->guid;
-			$message[$single->guid]['user']['name'] = $user->name;
-			$message[$single->guid]['user']['username'] = $user->username;
-			$message[$single->guid]['user']['avatar_url'] = get_entity_icon_url($user,'small');
+			$message['user']['guid'] = $user->guid;
+			$message['user']['name'] = $user->name;
+			$message['user']['username'] = $user->username;
+			$message['user']['avatar_url'] = get_entity_icon_url($user,'small');
 			
-			$message[$single->guid]['timestamp'] = $single->time_created;
+			$message['timestamp'] = $single->time_created;
 			
-			$message[$single->guid]['description'] = $single->description;
+			$message['description'] = $single->description;
 			
 			if($single->readYet){
-			$message[$single->guid]['read'] = "yes";
+			$message['read'] = "yes";
 			}else{
-			$message[$single->guid]['read'] = "no";
+			$message['read'] = "no";
 			}
 	
 			return $message;
@@ -73,7 +75,7 @@ expose_function('messages.count',
  * @param string $limit  (optional) default 10
  * @param string $offset (optional) default 0
  *
- * @return array $file Array of files uploaded
+ * @return array $message Array of files uploaded
  */
 function messages_inbox($limit = 10, $offset = 0) {	
 
@@ -91,29 +93,32 @@ function messages_inbox($limit = 10, $offset = 0) {
 	$list = elgg_get_entities_from_metadata($params);
 	if($list) {
 		foreach($list as $single ) {
-			$message[$single->guid]['subject'] = $single->title;
+			$message['guid'] = $single->guid;
+			$message['subject'] = $single->title;
 			
 			$user = get_entity($single->fromId);
-			$message[$single->guid]['user']['guid'] = $user->guid;
-			$message[$single->guid]['user']['name'] = $user->name;
-			$message[$single->guid]['user']['username'] = $user->username;
-			$message[$single->guid]['user']['avatar_url'] = get_entity_icon_url($user,'small');
+			$message['user']['guid'] = $user->guid;
+			$message['user']['name'] = $user->name;
+			$message['user']['username'] = $user->username;
+			$message['user']['avatar_url'] = get_entity_icon_url($user,'small');
 			
-			$message[$single->guid]['timestamp'] = $single->time_created;
+			$message['timestamp'] = (int)$single->time_created;
 			
-			$message[$single->guid]['description'] = $single->description;
+			$message['description'] = $single->description;
 			
 			if($single->readYet){
-			$message[$single->guid]['read'] = "yes";
+			$message['read'] = "yes";
 			}else{
-			$message[$single->guid]['read'] = "no";
+			$message['read'] = "no";
 			}
+			$return[] = $message;
 		}
 	}
 	else {
-	 	$message['error']['message'] = elgg_echo('file:none');
+	 	$msg = elgg_echo('messages:nomessages');
+		throw new InvalidParameterException($msg);
 	}
-	return $message;
+	return $return;
 }
 	
 expose_function('messages.inbox',
@@ -133,7 +138,7 @@ expose_function('messages.inbox',
  * @param string $limit  (optional) default 10
  * @param string $offset (optional) default 0
  *
- * @return array $file Array of files uploaded
+ * @return array $mesage Array of files uploaded
  */
 function messages_sent($limit = 10, $offset = 0) {	
 
@@ -151,30 +156,33 @@ function messages_sent($limit = 10, $offset = 0) {
 	$list = elgg_get_entities_from_metadata($params);
 	if($list) {
 		foreach($list as $single ) {
-			$message[$single->guid]['subject'] = $single->title;
+			$message['guid'] = $single->guid;
+			$message['subject'] = $single->title;
 			
 
 			 $user = get_entity($single->toId);
-			$message[$single->guid]['user']['guid'] = $user->guid;
-			$message[$single->guid]['user']['name'] = $user->name;
-			$message[$single->guid]['user']['username'] = $user->username;
-			$message[$single->guid]['user']['avatar_url'] = get_entity_icon_url($user,'small');
+			$message['user']['guid'] = $user->guid;
+			$message['user']['name'] = $user->name;
+			$message['user']['username'] = $user->username;
+			$message['user']['avatar_url'] = get_entity_icon_url($user,'small');
 			
-			$message[$single->guid]['timestamp'] = $single->time_created;
+			$message['timestamp'] = (int)$single->time_created;
 			
-			$message[$single->guid]['description'] = $single->description;
+			$message['description'] = $single->description;
 			
 			if($single->readYet){
-			$message[$single->guid]['read'] = "yes";
+			$message['read'] = "yes";
 			}else{
-			$message[$single->guid]['read'] = "no";
+			$message['read'] = "no";
 			}
+			$return[] = $message;
 		}
 	}
 	else {
-	 	$message['error']['message'] = elgg_echo('file:none');
+	 	$msg = elgg_echo('messages:nomessages');
+		throw new InvalidParameterException($msg);
 	}
-	return $message;
+	return $return;
 }
 	
 expose_function('messages.sent',
@@ -213,13 +221,11 @@ expose_function('messages.sent',
 						'subject' => array ('type' => 'string'),
 						'body' => array ('type' => 'string'),
 					  	'send_to' => array ('type' => 'string'),
-						'reply' => array ('type' => 'int', 'required' => false),
+						'reply' => array ('type' => 'int', 'required' => false, 'default'=>0),
 					),
 				"Send a message",
 				'POST',
 				true,
 				true);
  
-				
-//messages_send($subject, $body, $send_to, $from = 0, $reply = 0, $notify = true, $add_to_sent = true)			
                 ?>
