@@ -297,8 +297,8 @@ expose_function('group.forum.delete_post',
  *
  * @return bool
  */
-function group_forum_latest_post($groupid, $limit = 10, $offset = 0) {
-	$group = get_entity($groupid);
+function group_forum_get_posts($guid, $limit = 10, $offset = 0) {
+	$group = get_entity($guid);
 	if (!$group) {
 		return elgg_echo('group:notfound');
 	}
@@ -306,7 +306,7 @@ function group_forum_latest_post($groupid, $limit = 10, $offset = 0) {
 	$options = array(
 		'type' => 'object',
 		'subtype' => 'groupforumtopic',
-		'container_guid' => $groupid,
+		'container_guid' => $guid,
 		'limit' => $limit,
 		'offset' => $offset,
 		'full_view' => false,
@@ -315,31 +315,38 @@ function group_forum_latest_post($groupid, $limit = 10, $offset = 0) {
 	$content = elgg_get_entities($options);
 	if($content) {
 		foreach($content as $single ) {
-			$post[$single->guid]['title'] = $single->title;
-			$post[$single->guid]['description'] = $single->description;
-			$post[$single->guid]['owner_guid'] = $single->owner_guid;
-			$post[$single->guid]['container_guid'] = $single->container_guid;
-			$post[$single->guid]['access_id'] = $single->access_id;
-			$post[$single->guid]['time_created'] = $single->time_created;
-			$post[$single->guid]['time_updated'] = $single->time_updated;
-			$post[$single->guid]['last_action'] = $single->last_action;
+			$post['guid'] = $single->guid;
+			$post['title'] = $single->title;
+			$post['description'] = strip_tags($single->description);
+			$user = get_entity($single->owner_guid);
+			$post['owner']['guid'] = $user->guid;
+			$post['owner']['name'] = $user->name;
+			$post['owner']['username'] = $user->username;
+			$post['owner']['avatar_url'] = get_entity_icon_url($user,'small');
+			$post['container_guid'] = $single->container_guid;
+			$post['access_id'] = $single->access_id;
+			$post['time_created'] = (int)$single->time_created;
+			$post['time_updated'] = (int)$single->time_updated;
+			$post['last_action'] = (int)$single->last_action;
+			$return[] = $post;
 		}
 	}
 	else {
-		$post = elgg_echo('discussion:topic:notfound');
+		$msg = elgg_echo('discussion:topic:notfound');
+		throw new InvalidParameterException($msg);
 	}
-	return $post;
+	return $return;
 } 
 				
-expose_function('group.forum.get_latest_post',
-				"group_forum_latest_post",
-				array('groupid' => array ('type' => 'string'),
+expose_function('group.forum.get_posts',
+				"group_forum_get_posts",
+				array('guid' => array ('type' => 'int'),
 					  'limit' => array ('type' => 'int', 'required' => false),
 					  'offset' => array ('type' => 'int', 'required' => false),
 					),
 				"Get posts from a group",
 				'GET',
-				true,
+				false,
 				false);
 
 /**
@@ -351,10 +358,10 @@ expose_function('group.forum.get_latest_post',
  *
  * @return bool
  */
-function group_forum_get_reply($postid, $limit = 10, $offset = 0) {
-	$group = get_entity($postid);
+function group_forum_get_replies($postId, $limit = 10, $offset = 0) {
+	$topic = get_entity($postId);
 	$options = array(
-		'guid' => $postid,
+		'guid' => $postId,
 		'annotation_name' => 'group_topic_post',
 		'limit' => $limit,
 		'offset' => $offset,
@@ -362,33 +369,41 @@ function group_forum_get_reply($postid, $limit = 10, $offset = 0) {
 	$content = elgg_get_annotations($options);
 	if($content) {
 		foreach($content as $single ) {
-			$post[$single->id]['value'] = $single->value;
-			$post[$single->id]['name'] = $single->name;
-			$post[$single->id]['enabled'] = $single->enabled;
-			$post[$single->id]['owner_guid'] = $single->owner_guid;
-			$post[$single->id]['entity_guid'] = $single->entity_guid;
-			$post[$single->id]['access_id'] = $single->access_id;
-			$post[$single->id]['time_created'] = $single->time_created;
-			$post[$single->id]['name_id'] = $single->name_id;
-			$post[$single->id]['value_id'] = $single->value_id;
-			$post[$single->id]['value_type'] = $single->value_type;
+			$post['id']= $single->id;
+			$post['value'] = strip_tags($single->value);
+			$post['name'] = $single->name;
+			$post['enabled'] = $single->enabled;
+			$user = get_entity($single->owner_guid);
+			$post['owner']['guid'] = $user->guid;
+			$post['owner']['name'] = $user->name;
+			$post['owner']['username'] = $user->username;
+			$post['owner']['avatar_url'] = get_entity_icon_url($user,'small');
+			$post['entity_guid'] = $single->entity_guid;
+			$post['access_id'] = $single->access_id;
+			$post['time_created'] =(int) $single->time_created;
+			$post['name_id'] = $single->name_id;
+			$post['value_id'] = $single->value_id;
+			$post['value_type'] = $single->value_type;
+			$return[] = $post;
 		}
 	}
 	else {
-		$post = elgg_echo('discussion:reply:noreplies');
+		$msg = elgg_echo('discussion:reply:noreplies');
+		throw new InvalidParameterException($msg);
+
 	}
-	return $post;
+	return $return;
 } 
 				
-expose_function('group.forum.get_reply',
-				"group_forum_get_reply",
-				array('postid' => array ('type' => 'string'),
+expose_function('group.forum.get_replies',
+				"group_forum_get_replies",
+				array('postId' => array ('type' => 'int'),
 					  'limit' => array ('type' => 'int', 'required' => false),
 					  'offset' => array ('type' => 'int', 'required' => false),
 					),
 				"Get posts from a group",
 				'GET',
-				true,
+				false,
 				false);
 				
 /**
