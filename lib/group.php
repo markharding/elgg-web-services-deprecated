@@ -139,7 +139,11 @@ expose_function('group.join',
  * @return bool
  */
 function group_leave($username, $groupid) {
-	$user = get_user_by_username($username);
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
@@ -186,8 +190,12 @@ expose_function('group.leave',
  *
  * @return bool
  */
-function group_forum_save_post($username, $groupid, $title, $desc, $tags = "", $status = "published", $access_id = ACCESS_DEFAULT) {
-	$user = get_user_by_username($username);
+function group_forum_save_post($groupid, $title, $desc, $tags, $status, $access_id ,$username) {
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
@@ -226,18 +234,19 @@ function group_forum_save_post($username, $groupid, $title, $desc, $tags = "", $
 				
 expose_function('group.forum.save_post',
 				"group_forum_save_post",
-				array('username' => array ('type' => 'string'),
+				array(
 						'groupid' => array ('type' => 'int'),
 						'title' => array ('type' => 'string'),
 						'desc' => array ('type' => 'string'),
-						'tags' => array ('type' => 'string', 'required' => false),
-						'status' => array ('type' => 'string', 'required' => false),
-						'access_id' => array ('type' => 'int', 'required' => false),
+						'tags' => array ('type' => 'string', 'required' => false, 'default'=>' '),
+						'status' => array ('type' => 'string', 'required' => false, 'default'=>"published"),
+						'access_id' => array ('type' => 'int', 'required' => false, 'default'=>ACCESS_DEFAULT),
+						'username' => array ('type' => 'string', 'required' =>false),
 					),
 				"Post to a group",
 				'POST',
 				true,
-				false);
+				true);
 				
 /**
  * Web service for deleting a topic from a group
@@ -348,6 +357,49 @@ expose_function('group.forum.get_posts',
 				'GET',
 				false,
 				false);
+/**
+ * Web service get single post from a group forum
+ *
+ * @param string $groupid GUID of the group
+ * @param string $limit   (optional) default 10
+ * @param string $offset  (optional) default 0
+ *
+ * @return bool
+ */
+function group_forum_get_post($guid, $limit = 10, $offset = 0) {
+	$discussion = get_entity($guid);
+	
+			$post['guid'] = $discussion->guid;
+			$post['title'] = $discussion->title;
+			$post['description'] = strip_tags($discussion->description);
+			$user = get_entity($discussion->owner_guid);
+			$post['owner']['guid'] = $user->guid;
+			$post['owner']['name'] = $user->name;
+			$post['owner']['username'] = $user->username;
+			$post['owner']['avatar_url'] = get_entity_icon_url($user,'small');
+			$post['container_guid'] = $discussion->container_guid;
+			$post['access_id'] = $discussion->access_id;
+			$post['time_created'] = (int)$discussion->time_created;
+			$post['time_updated'] = (int)$discussion->time_updated;
+			$post['last_action'] = (int)$discussion->last_action;
+	
+	if(!$discussion) {
+		$msg = elgg_echo('discussion:topic:notfound');
+		throw new InvalidParameterException($msg);
+	}
+	return $post;
+} 
+				
+expose_function('group.forum.get_post',
+				"group_forum_get_post",
+				array('guid' => array ('type' => 'int'),
+					  'limit' => array ('type' => 'int', 'required' => false),
+					  'offset' => array ('type' => 'int', 'required' => false),
+					),
+				"Get a single post from a group forum",
+				'GET',
+				false,
+				false);
 
 /**
  * Web service get replies on a post
@@ -358,10 +410,10 @@ expose_function('group.forum.get_posts',
  *
  * @return bool
  */
-function group_forum_get_replies($postId, $limit = 10, $offset = 0) {
-	$topic = get_entity($postId);
+function group_forum_get_replies($guid, $limit = 10, $offset = 0) {
+	$topic = get_entity($guid);
 	$options = array(
-		'guid' => $postId,
+		'guid' => $guid,
 		'annotation_name' => 'group_topic_post',
 		'limit' => $limit,
 		'offset' => $offset,
@@ -397,7 +449,7 @@ function group_forum_get_replies($postId, $limit = 10, $offset = 0) {
 				
 expose_function('group.forum.get_replies',
 				"group_forum_get_replies",
-				array('postId' => array ('type' => 'int'),
+				array('guid' => array ('type' => 'int'),
 					  'limit' => array ('type' => 'int', 'required' => false),
 					  'offset' => array ('type' => 'int', 'required' => false),
 					),
@@ -415,53 +467,51 @@ expose_function('group.forum.get_replies',
  *
  * @return bool
  */
-function group_forum_save_reply($username, $postid, $text) {
-	$entity_guid = (int) get_input('entity_guid');
-	$return['success'] = false;
-	if (empty($text)) {
-		$return['message'] = elgg_echo('grouppost:nopost');
-		return $return;
-	}
-
+function group_forum_save_reply( $postid, $text, $username) {
 	$topic = get_entity($postid);
 	if (!$topic) {
-		$return['message'] = elgg_echo('grouppost:nopost');
-		return $return;
+		$msg = elgg_echo('grouppost:nopost');
+		throw new InvalidParameterException($msg);
 	}
 
-	$user = get_user_by_username($username);
-	if (!$user) {
-		$return['message'] = elgg_echo('registration:usernamenotvalid');
-		return $return;
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+		if (!$user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
 	}
 
 	$group = $topic->getContainerEntity();
 	if (!$group->canWriteToContainer($user)) {
-		$return['message'] = elgg_echo('groups:notmember');
-		return $return;
+		$msg = elgg_echo('groups:notmember');
+		throw new InvalidParameterException($msg);
 	}
 
-	$reply_id = $topic->annotate('group_topic_post', $text, $topic->access_id, $user->guid);
-	if ($reply_id == false) {
-		$return['message'] = elgg_echo('groupspost:failure');
-		return $return;
+	$reply = $topic->annotate('group_topic_post', $text, $topic->access_id, $user->guid);
+	if ($reply) {
+		add_to_river('river/annotation/group_topic_post/reply', 'reply', $user->guid, $topic->guid, "", 0, $reply_id);	
+	} else {
+		$msg = elgg_echo('grouppost:failure');
+		throw new InvalidParameterException($msg);
 	}
 	
-	add_to_river('river/annotation/group_topic_post/reply', 'reply', $user->guid, $topic->guid, "", 0, $reply_id);
 	$return['success'] = true;
 	return $return;
 } 
 				
 expose_function('group.forum.save_reply',
 				"group_forum_save_reply",
-				array('username' => array ('type' => 'string'),
+				array(
 						'postid' => array ('type' => 'string'),
 						'text' => array ('type' => 'string'),
+						'username' => array ('type' => 'string', 'required'=>false),
 					),
 				"Post a reply to a group",
 				'POST',
 				true,
-				false);
+				true);
 				
 /**
  * Web service delete a reply
