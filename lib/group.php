@@ -256,23 +256,26 @@ expose_function('group.forum.save_post',
  *
  * @return bool
  */
-function group_forum_delete_post($username, $topicid) {
+function group_forum_delete_post( $topicid, $username) {
 	$topic = get_entity($topicid);
 	
-	$return['success'] = false;
 	if (!$topic || !$topic->getSubtype() == "groupforumtopic") {
-		$return['message'] = elgg_echo('discussion:error:notdeleted');
-		return $return;
+		$msg = elgg_echo('discussion:error:notdeleted');
+		throw new InvalidParameterException($msg);
 	}
 
-	$user = get_user_by_username($username);
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
 	if (!$user) {
-		$return['message'] = elgg_echo('registration:usernamenotvalid');
-		return $return;
+		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
 
 	if (!$topic->canEdit($user->guid)) {
-		$return['message'] = elgg_echo('discussion:error:permissions');
+		$msg = elgg_echo('discussion:error:permissions');
+		throw new InvalidParameterException($msg);
 	}
 
 	$container = $topic->getContainerEntity();
@@ -282,20 +285,22 @@ function group_forum_delete_post($username, $topicid) {
 		$return['success'] = true;
 		$return['message'] = elgg_echo('discussion:topic:deleted');
 	} else {
-		$return['message'] = elgg_echo('discussion:error:notdeleted');
+		$msg = elgg_echo('discussion:error:notdeleted');
+		throw new InvalidParameterException($msg);
 	}
 	return $return;
 } 
 				
 expose_function('group.forum.delete_post',
 				"group_forum_delete_post",
-				array('username' => array ('type' => 'string'),
+				array(
 						'topicid' => array ('type' => 'int'),
+						'username' => array ('type' => 'string', 'required'=>false),
 					),
 				"Post to a group",
 				'POST',
 				true,
-				false);
+				true);
 				
 /**
  * Web service get latest post in a group
@@ -521,42 +526,47 @@ expose_function('group.forum.save_reply',
  *
  * @return bool
  */
-function group_forum_delete_reply($username, $id) {
+function group_forum_delete_reply( $id, $username) {
 	$reply = elgg_get_annotation_from_id($id);
-	$return['success'] = false;
+
 	if (!$reply || $reply->name != 'group_topic_post') {
-		$return['message'] = elgg_echo('discussion:reply:error:notdeleted');
-		return $return;
+		$msg = elgg_echo('discussion:reply:error:notdeleted');
+		throw new InvalidParameterException($msg);
 	}
 	
-	$user = get_user_by_username($username);
-	if (!$user) {
-		$return['message'] = elgg_echo('registration:usernamenotvalid');
-		return $return;
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+		if (!$user) {
+			throw new InvalidParameterException('registration:usernamenotvalid');
+		}
 	}
 
 	if (!$reply->canEdit($user->guid)) {
-		$return['message'] = elgg_echo('discussion:error:permissions');
-		return $return;
+		$msg = elgg_echo('discussion:error:permissions');
+		throw new InvalidParameterException($msg);
 	}
 
 	$result = $reply->delete();
 	if ($result) {
 		$return['success'] = true;
 		$return['message'] = elgg_echo('discussion:reply:deleted');
-		return $return;
 	} else {
-		$return['message'] = elgg_echo('discussion:reply:error:notdeleted');
-		return $return;
+		$msg = elgg_echo('discussion:reply:error:notdeleted');
+		throw new InvalidParameterException($msg);
 	}
+	return $return;
+
 } 
 				
 expose_function('group.forum.delete_reply',
 				"group_forum_delete_reply",
-				array('username' => array ('type' => 'string'),
+				array(
 						'id' => array ('type' => 'string'),
+						'username' => array ('type' => 'string', 'required' =>false),
 					),
-				"Delete a reply from a group",
+				"Delete a reply from a group forum post",
 				'POST',
 				true,
-				false);
+				true);
