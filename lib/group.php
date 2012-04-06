@@ -570,3 +570,47 @@ expose_function('group.forum.delete_reply',
 				'POST',
 				true,
 				true);
+
+/**
+ * Web service to get activity feed for a group
+ *
+ * @param int $guid - the guid of the group
+ * @param int $limit default 10
+ * @param int $offset default 0
+ *
+ * @return bool
+ */
+function group_activity($guid, $limit = 10, $offset = 0) {
+$group = get_entity($guid);			
+if(!$guid){
+	$msg = elgg_echo('groups:notfound');
+	throw new InvalidParameterException($msg);
+}
+
+$db_prefix = elgg_get_config('dbprefix');
+
+
+global $jsonexport;
+	
+$content = elgg_list_river(array(
+	'limit' => 4,
+	'pagination' => false,
+	'joins' => array("JOIN {$db_prefix}entities e1 ON e1.guid = rv.object_guid"),
+	'wheres' => array("(e1.container_guid = $group->guid)"),
+));
+
+return $jsonexport['activity'];
+
+}
+expose_function('group.activity',
+				"group_activity",
+				array(
+						'guid' => array ('type' => 'int'),
+						'limit' => array ('type' => 'int', 'required' => false),
+					  	'offset' => array ('type' => 'int', 'required' => false),
+					),
+				"Get the activity feed for a group",
+				'GET',
+				false,
+				false);
+				
