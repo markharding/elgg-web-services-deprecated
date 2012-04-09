@@ -116,7 +116,7 @@ expose_function('blog.get_posts',
  *
  * @return bool
  */
-function blog_save($title, $text, $excerpt = "", $tags = "blog" , $access = ACCESS_PUBLIC, $container_guid = 0) {
+function blog_save($title, $text, $excerpt, $tags , $access, $container_guid) {
 	$user = get_loggedin_user();
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
