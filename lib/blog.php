@@ -116,7 +116,7 @@ expose_function('blog.get_posts',
  *
  * @return bool
  */
-function blog_save($title, $text, $excerpt = "", $tags = "blog" , $access = ACCESS_PUBLIC) {
+function blog_save($title, $text, $excerpt = "", $tags = "blog" , $access = ACCESS_PUBLIC, $container_guid = 0) {
 	$user = get_loggedin_user();
 	if (!$user) {
 		throw new InvalidParameterException('registration:usernamenotvalid');
@@ -125,6 +125,7 @@ function blog_save($title, $text, $excerpt = "", $tags = "blog" , $access = ACCE
 	$obj = new ElggObject();
 	$obj->subtype = "blog";
 	$obj->owner_guid = $user->guid;
+	$obj->container_guid = $container_guid;
 	$obj->access_id = strip_tags($access);
 	$obj->method = "api";
 	$obj->description = strip_tags($text);
@@ -150,8 +151,9 @@ expose_function('blog.save_post',
 						'title' => array ('type' => 'string', 'required' => true),
 						'text' => array ('type' => 'string', 'required' => true),
 						'excerpt' => array ('type' => 'string', 'required' => false),
-						'tags' => array ('type' => 'string', 'required' => false),
-						'access' => array ('type' => 'string', 'required' => false),
+						'tags' => array ('type' => 'string', 'required' => false, 'default' => "blog"),
+						'access' => array ('type' => 'string', 'required' => false, 'default'=>ACCESS_PUBLIC),
+						'container_guid' => array ('type' => 'int', 'required' => false, 'default' => 0),
 					),
 				"Post a blog post",
 				'POST',
