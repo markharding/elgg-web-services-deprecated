@@ -268,49 +268,45 @@ expose_function('user.register',
  *
  * @return bool
  */           
-function user_friend_add($username, $friend) {
+function user_friend_add($friend, $username) {
 	if(!$username){
 		$user = get_loggedin_user();
 	} else {
 		$user = get_user_by_username($username);
 	}
-	$return['success'] = false;
 	if (!$user) {
-		$return['message'] = elgg_echo('registration:usernamenotvalid');
+		throw new InvalidParameterException('registration:usernamenotvalid');
 	}
 	
 	$friend_user = get_user_by_username($friend);
 	if (!$friend_user) {
-		$return['message'] = elgg_echo("friends:add:failure", array($friend_user->name));
+		$msg = elgg_echo("friends:add:failure", array($friend_user->name));
+	 	throw new InvalidParameterException($msg);
 	}
 	
 	if($friend_user->isFriendOf($user->guid)) {
-		$return['message'] = elgg_echo('friends:alreadyadded', array($friend_user->name));
+		$msg = elgg_echo('friends:alreadyadded', array($friend_user->name));
+	 	throw new InvalidParameterException($msg);
 	}
 	
-	try {
-		if (!$user->addFriend($friend_user->guid)) {
-			$errors = true;
-		}
-		
-	} catch (Exception $e) {
-		$errors = true;
-		$return['message'] = elgg_echo("friends:add:failure", array($friend_user->name));
-	}
-
-	if (!$errors) {
+	
+	if ($user->addFriend($friend_user->guid)) {
 		// add to river
 		add_to_river('river/relationship/friend/create', 'friend', $user->guid, $friend_user->guid);
 		$return['success'] = true;
 		$return['message'] = elgg_echo('friends:add:successful' , array($friend_user->name));
+	} else {
+		$msg = elgg_echo("friends:add:failure", array($friend_user->name));
+	 	throw new InvalidParameterException($msg);
 	}
 	return $return;
 }
 
 expose_function('user.friend.add',
 				"user_friend_add",
-				array('username' => array ('type' => 'string'),
+				array(
 						'friend' => array ('type' => 'string'),
+						'username' => array ('type' => 'string', 'required' =>false),
 					),
 				"Add a user as friend",
 				'POST',
@@ -332,32 +328,29 @@ function user_friend_remove($friend,$username) {
 	} else {
 		$user = get_user_by_username($username);
 	}
-	$return['success'] = false;
 	if (!$user) {
-		$return['message'] = elgg_echo('registration:usernamenotvalid');
+	 	throw new InvalidParameterException('registration:usernamenotvalid');
 	}
 	
 	$friend_user = get_user_by_username($friend);
 	if (!$friend_user) {
-		$return['message'] = elgg_echo("friends:remove:failure", array($friend_user->name));
+		$msg = elgg_echo("friends:remove:failure", array($friend_user->name));
+	 	throw new InvalidParameterException($msg);
 	}
 	
 	if(!$friend_user->isFriendOf($user->guid)) {
-		$return['message'] = elgg_echo('friends:remove:notfriend', array($friend_user->name));
+		$msg = elgg_echo("friends:remove:notfriend", array($friend_user->name));
+	 	throw new InvalidParameterException($msg);
 	}
 	
-	try {
-		if (!$user->removeFriend($friend_user->guid)) {
-			$errors = true;
-		}
-	} catch (Exception $e) {
-		$errors = true;
-		$return['message'] = elgg_echo("friends:remove:failure", array($friend_user->name));
-	}
-
-	if (!$errors) {
+	
+		if ($user->removeFriend($friend_user->guid)) {
+		
 		$return['message'] = elgg_echo("friends:remove:successful", array($friend->name));
 		$return['success'] = true;
+	} else {
+		$msg = elgg_echo("friends:add:failure", array($friend_user->name));
+	 	throw new InvalidParameterException($msg);
 	}
 	return $return;
 }
