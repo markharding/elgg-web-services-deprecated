@@ -88,26 +88,24 @@ expose_function('site.river_feed',
  * @return array $results search result
  */
  
-function site_search($query){
-	
-	//temp values
-	//these will be added to expose soon
-	$search_type = 'all';
-	$entity_type = ELGG_ENTITIES_ANY_VALUE;
-	$entity_subtype = ELGG_ENTITIES_ANY_VALUE;
+function site_search($query, $offset, $limit, $sort, $order, $search_type, $entity_type, $entity_subtype, $owner_guid, $container_guid){
 	
 	$params = array(
 					'query' => $query,
+					'offset' => $offset,
+					'limit' => $limit,
+					'sort' => $sort,
+					'order' => $order,
 					'search_type' => $search_type,
 					'type' => $entity_type,
-					'subtype' => $entity_type,
+					'subtype' => $entity_subtype,
+				//	'tag_type' => $tag_type,
+					'owner_guid' => $owner_guid,
+					'container_guid' => $container_guid,
 					);
 					
 	$types = get_registered_entity_types();
 	
-	//store the result in here
-	
-
 	foreach ($types as $type => $subtypes) {
 	
 		// pull in default type entities with no subtypes
@@ -149,7 +147,17 @@ function site_search($query){
 }
 expose_function('site.search',
 				"site_search",
-				array('query' => array('type' => 'string')),
+				array(	'query' => array('type' => 'string'),
+						'offset' =>array('type' => 'int', 'required'=>false, 'default' => 0),
+						'limit' =>array('type' => 'int', 'required'=>false, 'default' => 10),
+						'sort' =>array('type' => 'string', 'required'=>false, 'default' => 'relevance'),
+						'order' =>array('type' => 'string', 'required'=>false, 'default' => 'desc'),
+						'search_type' =>array('type' => 'string', 'required'=>false, 'default' => 'all'),
+						'entity_type' =>array('type' => 'string', 'required'=>false, 'default' => ELGG_ENTITIES_ANY_VALUE),
+						'entity_subtype' =>array('type' => 'string', 'required'=>false, 'default' => ELGG_ENTITIES_ANY_VALUE),
+						'owner_guid' =>array('type' => 'int', 'required'=>false, 'default' => ELGG_ENTITIES_ANY_VALUE),
+						'container_guid' =>array('type' => 'int', 'required'=>false, 'default' => ELGG_ENTITIES_ANY_VALUE),
+						),
 				"Perform a search",
 				'GET',
 				false,
