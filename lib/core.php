@@ -107,10 +107,6 @@ function site_search($query, $offset, $limit, $sort, $order, $search_type, $enti
 	$types = get_registered_entity_types();
 	
 	foreach ($types as $type => $subtypes) {
-	
-		// pull in default type entities with no subtypes
-		$params['type'] = $type;
-		//$params['subtype'] = ELGG_ENTITIES_NO_VALUE;
 
 		$results = elgg_trigger_plugin_hook('search', $type, $params, array());
 		if ($results === FALSE) {
