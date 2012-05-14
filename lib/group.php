@@ -2,11 +2,81 @@
 /**
  * Elgg Webservices plugin 
  * 
- * @package Webservice
- * @author Saket Saurabh
+ * @package Elgg Standardised Web Services
+ * @author Mark Harding
  *
  */
-  /**
+ /**
+ * Web service to retrieve list of groups
+ *
+ * @param string $username Username
+ * @param string $limit    Number of users to return
+ * @param string $offset   Indexing offset, if any
+ *
+ * @return array
+ */    				
+function group_get_groups($context, $username, $limit, $offset){
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
+	
+	if($context == "all"){
+		$groups = elgg_get_entities(array(
+											'types' => 'group',
+											'limit' => $limit,
+											'full_view' => FALSE,
+											));
+	}
+	if($context == "mine" || $context ==  "user"){
+		$groups = $user->getGroups();
+	}
+	if($context == "owned"){
+		$groups = elgg_get_entities(array(
+											'types' => 'group',
+											'owner_guid' => $user->guid,
+											'limit' => $limit,
+											'full_view' => FALSE,
+											));
+	}
+	if($context == "featured"){
+		$groups = elgg_get_entities_from_metadata(array(
+														'metadata_name' => 'featured_group',
+														'metadata_value' => 'yes',
+														'types' => 'group',
+														'limit' => 10,
+														));
+	}
+	
+	
+	if($groups){
+	foreach($groups as $single){
+		$group['guid'] = $single->guid;
+		$group['name'] = $single->name;
+		$group['members'] = count($single->getMembers($limit=0));
+		$group['avatar_url'] = get_entity_icon_url($single,'small');
+		$return[] = $group;
+	}
+	} else {
+		$msg = elgg_echo('groups:none');
+		throw new InvalidParameterException($msg);
+	}
+	return $return;
+}
+expose_function('group.get_groups',
+				"group_get_groups",
+				array(	'context' => array ('type' => 'string', 'required' => false, 'default' => elgg_is_logged_in() ? "user" : "all"),
+						'username' => array ('type' => 'string', 'required' => false),
+						'limit' => array ('type' => 'int', 'required' => false),
+						'offset' => array ('type' => 'int', 'required' => false),
+					),
+				"Get groups use is a member of",
+				'GET',
+				false,
+				false);	
+				
+ /**
  * Web service for joining a group
  *
  * @param string $username username of author
@@ -170,14 +240,36 @@ function group_leave($username, $groupid) {
 				
 expose_function('group.leave',
 				"group_leave",
-				array('username' => array ('type' => 'string'),
+				array('username' => array ('type' => 'int'),
 						'groupid' => array ('type' => 'string'),
 					),
 				"leave a group",
 				'POST',
 				true,
 				false);
-				
+
+function group_save($groupid, $username){
+	if(!$username){
+		$user = get_loggedin_user();
+	} else {
+		$user = get_user_by_username($username);
+	}
+	if (!$user) {
+		throw new InvalidParameterException('registration:usernamenotvalid');
+	}
+}
+expose_function('group.save',
+				"group_save",
+				array(
+						'groupid' => array ('type' => 'int'),
+						'username' => array ('type' => 'string', 'required' => false),
+					),
+				"leave a group",
+				'POST',
+				true,
+				false);
+
+			
  /**
  * Web service for posting a new topic to a group
  *

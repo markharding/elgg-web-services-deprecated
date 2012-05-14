@@ -458,48 +458,7 @@ expose_function('user.friend.get_friends_of',
 				false,
 				false);	
 				
-/**
- * Web service to retrieve list of groups a user is member of
- *
- * @param string $username Username
- * @param string $limit    Number of users to return
- * @param string $offset   Indexing offset, if any
- *
- * @return array
- */    				
-function user_get_groups($username, $limit, $offset){
-	if(!$username){
-		$user = get_loggedin_user();
-	} else {
-		$user = get_user_by_username($username);
-	}
-	
-	$groups = $user->getGroups();
-	if($groups){
-	foreach($groups as $single){
-		$group['guid'] = $single->guid;
-		$group['name'] = $single->name;
-		$group['members'] = count($single->getMembers($limit=0));
-		$group['avatar_url'] = get_entity_icon_url($single,'small');
-		$return[] = $group;
-	}
-	} else {
-		$msg = elgg_echo('groups:none');
-		throw new InvalidParameterException($msg);
-	}
-	return $return;
-}
-expose_function('user.get_groups',
-				"user_get_groups",
-				array('username' => array ('type' => 'string', 'required' => false),
-						'limit' => array ('type' => 'int', 'required' => false),
-						'offset' => array ('type' => 'int', 'required' => false),
-					),
-				"Get groups use is a member of",
-				'GET',
-				false,
-				false);	
-				
+
 /**
  * Web service to retrieve the messageboard for a user
  *
