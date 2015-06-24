@@ -126,7 +126,7 @@ expose_function('wire.get_posts',
 					),
 				"Read lates wire post",
 				'GET',
-				false,
+				true,
 				false);
 				
 				

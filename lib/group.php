@@ -73,7 +73,7 @@ expose_function('group.get_groups',
 					),
 				"Get groups use is a member of",
 				'GET',
-				false,
+				true,
 				false);	
 				
  /**
@@ -123,7 +123,7 @@ expose_function('group.get',
 					),
 				"Get group",
 				'GET',
-				false,
+				true,
 				false);
  /**
  * Web service for joining a group
@@ -452,7 +452,7 @@ expose_function('group.forum.get_posts',
 					),
 				"Get posts from a group",
 				'GET',
-				false,
+				true,
 				false);
 /**
  * Web service get single post from a group forum
@@ -495,7 +495,7 @@ expose_function('group.forum.get_post',
 					),
 				"Get a single post from a group forum",
 				'GET',
-				false,
+				true,
 				false);
 
 /**
@@ -552,7 +552,7 @@ expose_function('group.forum.get_replies',
 					),
 				"Get posts from a group",
 				'GET',
-				false,
+				true,
 				false);
 				
 /**
@@ -703,6 +703,6 @@ expose_function('group.activity',
 					),
 				"Get the activity feed for a group",
 				'GET',
-				false,
+				true,
 				false);
 				
