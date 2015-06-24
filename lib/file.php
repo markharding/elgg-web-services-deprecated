@@ -99,5 +99,5 @@ expose_function('file.get_files',
 					),
 				"Get file uploaded by all users",
 				'GET',
-				false,
+				true,
 				false);

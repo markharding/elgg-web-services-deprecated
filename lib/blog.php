@@ -270,7 +270,7 @@ expose_function('blog.get_post',
 					),
 				"Read a blog post",
 				'GET',
-				false,
+				true,
 				false);
 /**
  * Web service to retrieve comments on a blog post
@@ -323,7 +323,7 @@ expose_function('blog.get_comments',
 					),
 				"Get comments for a blog post",
 				'GET',
-				false,
+				true,
 				false);	
 /**
  * Web service to comment on a post

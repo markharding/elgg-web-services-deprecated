@@ -26,7 +26,7 @@ expose_function('user.get_profile_fields',
 				array(),
 				"Get user profile labels",
 				'GET',
-				false,
+				true,
 				false);
 
 /**
@@ -79,7 +79,7 @@ expose_function('user.get_profile',
 					),
 				"Get user profile information",
 				'GET',
-				false,
+				true,
 				false);
 /**
  * Web service to update profile information
@@ -198,7 +198,7 @@ expose_function('user.get_user_by_email',
 					),
 				"Get Username by email",
 				'GET',
-				false,
+				true,
 				false);
 
 /**
@@ -223,7 +223,7 @@ expose_function('user.check_username_availability',
 					),
 				"Get Username by email",
 				'GET',
-				false,
+				true,
 				false);
 
 /**
@@ -257,7 +257,7 @@ expose_function('user.register',
 					),
 				"Register user",
 				'GET',
-				false,
+				true,
 				false);
 
 /**
@@ -409,7 +409,7 @@ expose_function('user.friend.get_friends',
 					),
 				"Register user",
 				'GET',
-				false,
+				true,
 				false);	
 				
 /**
@@ -455,7 +455,7 @@ expose_function('user.friend.get_friends_of',
 					),
 				"Register user",
 				'GET',
-				false,
+				true,
 				false);	
 				
 
@@ -517,7 +517,7 @@ expose_function('user.get_messageboard',
 					),
 				"Get a users messageboard",
 				'GET',
-				false,
+				true,
 				false);	
 /**
  * Web service to post to a messageboard

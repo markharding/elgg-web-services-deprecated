@@ -79,7 +79,7 @@ expose_function('site.river_feed',
 				array('limit' => array('type' => 'int', 'required' => 'no')),
 				"Get river feed",
 				'GET',
-				false,
+				true,
 				false);
 				
 /**
@@ -156,5 +156,5 @@ expose_function('site.search',
 						),
 				"Perform a search",
 				'GET',
-				false,
+				true,
 				false);
